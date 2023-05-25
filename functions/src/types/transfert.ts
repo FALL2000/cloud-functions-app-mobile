@@ -1,14 +1,14 @@
-let createDate = new Date();
+import { Timestamp } from "firebase-admin/firestore";
 export class Transfert {
     currency:string='';
     status:string= 'OPEN';
     amount:number=0;
     description:string='';
-    createdDate:Date=createDate;
-    LastTimeInPending:Date=createDate;
+    createdDate:any;
+    LastTimeInPending:any;
     to_bank:boolean= false;
-    bank:any={};
-    receiver:any={};
+    bank:any;
+    receiver:any;
     deposit:any={};
     ownerId:string='';
     owner:any={};
@@ -24,6 +24,8 @@ export class Transfert {
         this.currency = transfert.currency;
         this.amount = transfert.amount;
         this.description = transfert.description;
+        this.createdDate = Timestamp.fromDate(new Date(transfert.createdDate));
+        this.LastTimeInPending = Timestamp.fromDate(new Date(transfert.createdDate));
         if(transfert.bank){
             this.to_bank = true;
             this.bank = transfert.bank;
