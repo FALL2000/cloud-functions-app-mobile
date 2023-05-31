@@ -1,7 +1,8 @@
 import { Timestamp } from "firebase-admin/firestore";
+import * as functions from "firebase-functions";
+const  statut = ["OPEN", "IN APPROVAL", "IN PROGRESS", "APPROVED", "CANCELED", "CLOSED WON"];
 export class Transfert {
-    currency:string='';
-    status:string= 'OPEN';
+    status:string= '';
     amount:number=0;
     description:string='';
     createdDate:any;
@@ -11,21 +12,28 @@ export class Transfert {
     receiver:any;
     deposit:any={};
     ownerId:string='';
-    owner:any={};
-    inZoneId:string=''; //code du pays de reception
-    outZoneId:string=''; //code du pays d'envoi
-    inZoneCity:string=''; //code de la ville de reception
-    outZoneCity:string=''; //code de la ville d'envoi
-    inZone:any={};  //infos ville + pays de reception
-    outZone:any={}; // infos ville + pays d'envoi
+    inZone:any;
+    outZone:any;
     codeReception:string='';
 
     public fromJson(transfert:any){
-        this.currency = transfert.currency;
-        this.amount = transfert.amount;
-        this.description = transfert.description;
-        this.createdDate = Timestamp.fromDate(new Date(transfert.createdDate));
-        this.LastTimeInPending = Timestamp.fromDate(new Date(transfert.createdDate));
+        if(transfert.status){
+            if(statut.includes(transfert.status)){
+                this.status = transfert.status;
+            }else{
+                throw new functions.https.HttpsError('failed-precondition', 'Status is not valid');
+            }
+        }
+        if(transfert.amount){
+            this.amount = transfert.amount;
+        }
+        if(transfert.description){
+            this.description = transfert.description;
+        }
+        if(transfert.createdDate){
+            this.createdDate = Timestamp.fromDate(new Date(transfert.createdDate));
+            this.LastTimeInPending = Timestamp.fromDate(new Date(transfert.createdDate));
+        }
         if(transfert.bank){
             this.to_bank = true;
             this.bank = transfert.bank;
@@ -33,28 +41,24 @@ export class Transfert {
         if(transfert.receiver){
             this.receiver = transfert.receiver;
         }
-        this.deposit = transfert.deposit;
-        this.inZoneId = transfert.inZoneId;
-        this.outZoneId = transfert.outZoneId;
-        this.outZoneCity = transfert.outZoneCity;
-        this.inZoneCity = transfert.inZoneCity;
-        this.codeReception = transfert.codeReception;
-    }
-
-    public setInZone(city:any){
-      this.inZone = city;
-    }
-
-    public setOutZone(city:any){
-        this.outZone = city;
-    }
-
-    public setOwner(owner:any){
-        this.owner = owner;
+        if(transfert.deposit){
+            this.deposit = transfert.deposit;
+        }
+        if(transfert.codeReception){
+            this.codeReception = transfert.codeReception;
+        }
     }
 
     public setOwnerId(ownerId:any){
         this.ownerId = ownerId;
+    }
+
+    public setInZone(inZoneCity:any){
+        this.inZone = inZoneCity;
+    }
+
+    public setOutZone(outZoneCity:any){
+        this.outZone = outZoneCity;
     }
 
 }

@@ -1,6 +1,7 @@
 import { Firestore } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
-const USERS_COLLECTION= 'users';
+const USERS_COLLECTION= process.env.USERS_COLLECTION || 'users';
+
 
 export class Jpausers {
     public db:Firestore;
@@ -13,7 +14,7 @@ export class Jpausers {
         if (!users.exists) {
               throw new functions.https.HttpsError('not-found', 'Users Not Found!');
         }else{
-            return { "Id":users.id, "users":users.data(), "role":users.get('role')};
+            return { "Id":users.id, "role":users.get('role')};
         }
     }
 }

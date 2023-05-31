@@ -1,7 +1,8 @@
 import { Firestore } from "firebase-admin/firestore";
 import { Transfert } from "../types/transfert";
+import {updateField} from "../utils/global_functions";
 import * as functions from "firebase-functions";
-const TRANSFERT_COLLECTION= 'transferts';
+const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
 
 export class Jpatransfert {
     public db:Firestore;
@@ -14,8 +15,9 @@ export class Jpatransfert {
     }
 
     public async put(transfertId:string , transfert: Transfert) {
+        let fieldUpdate = updateField(transfert);
         const tranfertRef = this.db.collection(TRANSFERT_COLLECTION).doc(transfertId);
-        return await tranfertRef.set({...transfert}, { merge: true });
+        return await tranfertRef.set({...fieldUpdate}, { merge: true });
     }
 
     public async getOne(transfertId:string){

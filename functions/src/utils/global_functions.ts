@@ -2,6 +2,7 @@ import * as admin from "firebase-admin";
 import {getFirestore} from "firebase-admin/firestore";
 import { Transfert } from "../types/transfert";
 import { getJpaCity } from "../jpa/city-jpa";
+import { info} from "firebase-functions/logger";
 import { getJpaUsers } from "../jpa/users-jpa";
 
 const app=admin.initializeApp({}, 'appGlobalFunc');
@@ -10,28 +11,42 @@ db.settings({ ignoreUndefinedProperties: true })
 
 const toTransfert = async (data:any, context:any) => {
     let users:any;
-    let jpaUsers = getJpaUsers(db);
-    let jpaCity = getJpaCity(db);
-    await jpaUsers.getOne(context.auth?.uid).then(
+    let usersJPA = getJpaUsers(db);
+    let cityJPA = getJpaCity(db);
+    await usersJPA.getOne(context.auth?.uid).then(
         (result) => {
-            users =  {"owner":result.users, "ownerId":result.Id}
+            users =  {"ownerId":result.Id}
         }
     );
     let transfert = new Transfert();
     transfert.fromJson(data);
-    transfert.setOwner(users.owner);
-    transfert.setOwnerId(users.ownerId);
-    await jpaCity.findByCode(transfert.inZoneCity).then(
-        (result) => {
-            transfert.setInZone(result);  
-        }
-    );
-    await jpaCity.findByCode(transfert.outZoneCity).then(
-        (result) => {
-            transfert.setOutZone(result); 
-        }
-    );  
+    transfert.setOwnerId(users.ownerId);  
+    if(data.inZoneCity){
+        await cityJPA.findByCode(data.inZoneCity).then(
+            (result) => {
+                transfert.setInZone(result);
+            }
+        );
+    }
+    if(data.outZoneCity){
+        await cityJPA.findByCode(data.outZoneCity).then(
+            (result) => {
+                transfert.setOutZone(result);
+            }
+        );
+    }
     return transfert; 
 }
 
-export {toTransfert};
+const updateField = function (transfert:any) {
+    let fieldUpdate:any = {};
+    for (const key in transfert) {
+        if(transfert[key] !== null && transfert[key] !== '') {
+            fieldUpdate[key] = transfert[key];
+        }
+    }
+    info(fieldUpdate);
+    return fieldUpdate;
+}
+
+export {toTransfert, updateField};

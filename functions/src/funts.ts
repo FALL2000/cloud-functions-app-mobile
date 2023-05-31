@@ -20,17 +20,22 @@ const getAllTransfert = async (context:any) => {
     return new Response('200', 'success', transferts);
 }
 
-const getOneTransfert = async (transfertId:any) => {
+const getOneTransfert = async (transfertId:string) => {
     let transferts = await transfertJPA.getOne(transfertId);
     return new Response('200', 'success', transferts);
 }
 
-const deleteTransfert = async (transfertId:any) => {
+const deleteTransfert = async (transfertId:string) => {
     let transferts = await transfertJPA.delete(transfertId);
     return new Response('200', 'success', transferts);
 }
 
-export {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert};
+const updateTransfert = async (transfert: Transfert, transfertId:string) => {
+    let transUpdate = await transfertJPA.put(transfertId,transfert);
+    return new Response('201', 'success', transUpdate);
+}
+
+export {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert};
 
 
 

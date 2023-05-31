@@ -19,7 +19,7 @@ const check_role = async (context:any, availableRole:Array<string>) =>{
             role =  result.role;
         }
     );
-    if (availableRole.includes(role)) {
+    if (!availableRole.includes(role)) {
         throw new functions.https.HttpsError('permission-denied', 'you do not have permission for do this');
     }
 }

@@ -1,6 +1,6 @@
 import { Firestore } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
-const CITY_COLLECTION= 'City';
+const CITY_COLLECTION= process.env.CITY_COLLECTION || 'City';
 
 export class Jpacity {
     public db:Firestore;
