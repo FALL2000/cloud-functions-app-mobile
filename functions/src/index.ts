@@ -2,9 +2,10 @@ import * as functions from "firebase-functions";
 //import * as admin from "firebase-admin";
 //import {getFirestore} from "firebase-admin/firestore";
 import {toTransfert} from "./utils/global_functions";
+import { info} from "firebase-functions/logger";
 import {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert } from "./funts";
 import { Response } from "./types/response";
-import { check_auth, check_role } from "./utils/global_checker";
+import { check_auth, check_role, check_transfert } from "./utils/global_checker";
 
 // // Start writing functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -22,6 +23,7 @@ const ALL_ROLE = [CLIENT_ROLE,ADMIN_ROLE,GESTIONNAIRE_ROLE,AGENT_ROLE];
 type availableAction = "SAVE" | "DELETE" | 'GET-INFO' | 'GET-ALL' | 'UPDATE';
 
 exports.nlManageRequest = functions.https.onCall(async (data, context) => {
+    info(data);
     check_auth(context);
     let transfert:any;
     try {
@@ -31,6 +33,7 @@ exports.nlManageRequest = functions.https.onCall(async (data, context) => {
         const action:availableAction = data.action;
         switch (action) {
             case 'SAVE':
+                check_transfert(transfert);
                 await check_role(context,SAVE_ROLE);
                 return createTransfert(transfert);
             case 'GET-ALL':

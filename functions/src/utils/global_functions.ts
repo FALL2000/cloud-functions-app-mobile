@@ -20,7 +20,7 @@ const toTransfert = async (data:any, context:any) => {
     );
     let transfert = new Transfert();
     transfert.fromJson(data);
-    transfert.setOwnerId(users.ownerId);  
+    transfert.setOwnerId(users.ownerId); 
     if(data.inZoneCity){
         await cityJPA.findByCode(data.inZoneCity).then(
             (result) => {

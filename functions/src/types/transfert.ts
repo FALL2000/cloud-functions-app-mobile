@@ -3,7 +3,7 @@ import * as functions from "firebase-functions";
 const  statut = ["OPEN", "IN APPROVAL", "IN PROGRESS", "APPROVED", "CANCELED", "CLOSED WON"];
 export class Transfert {
     status:string= '';
-    amount:number=0;
+    amount:any;
     description:string='';
     createdDate:any;
     LastTimeInPending:any;
@@ -24,8 +24,12 @@ export class Transfert {
                 throw new functions.https.HttpsError('failed-precondition', 'Status is not valid');
             }
         }
-        if(transfert.amount){
-            this.amount = transfert.amount;
+        if(transfert.amount != null){
+            if(transfert.amount > 0){
+                this.amount = transfert.amount;
+            }else{
+                throw new functions.https.HttpsError('failed-precondition', 'Amount must be greater than 0');
+            }
         }
         if(transfert.description){
             this.description = transfert.description;
