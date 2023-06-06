@@ -15,6 +15,7 @@ export class Transfert {
     inZone:any;
     outZone:any;
     codeReception:string='';
+    public owner:any={};
 
     public fromJson(transfert:any){
         if(transfert.status){

@@ -15,12 +15,13 @@ const toTransfert = async (data:any, context:any) => {
     let cityJPA = getJpaCity(db);
     await usersJPA.getOne(context.auth?.uid).then(
         (result) => {
-            users =  {"ownerId":result.Id}
+            users =  {"ownerId":result.Id,...result}
         }
     );
     let transfert = new Transfert();
     transfert.fromJson(data);
     transfert.setOwnerId(users.ownerId); 
+    transfert.owner=users; 
     if(data.inZoneCity){
         await cityJPA.findByCode(data.inZoneCity).then(
             (result) => {
