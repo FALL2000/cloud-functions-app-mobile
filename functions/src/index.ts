@@ -35,19 +35,19 @@ exports.nlManageRequest = functions.https.onCall(async (data, context) => {
             case 'SAVE':
                 check_transfert(transfert);
                 await check_role(context,SAVE_ROLE);
-                return createTransfert(transfert);
+                return await createTransfert(transfert);
             case 'GET-ALL':
                 await check_role(context, ALL_ROLE);
-                return getAllTransfert(context);
+                return await getAllTransfert(context);
             case 'GET-INFO':
                 await check_role(context, ALL_ROLE);
-                return getOneTransfert(data.transfertId);
+                return await getOneTransfert(data.transfertId);
             case 'DELETE':
                 await check_role(context, DELETE_ROLE);
-                return deleteTransfert(data.transfertId);
+                return await deleteTransfert(data.transfertId);
             case 'UPDATE':
                 await check_role(context, UPDATE_ROLE);
-                return updateTransfert(transfert, data.transfertId);
+                return await updateTransfert(transfert, data.transfertId);
             default:
                 throw new functions.https.HttpsError('failed-precondition', 'unavailable action');
                 break;
