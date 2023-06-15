@@ -48,14 +48,9 @@ export class Jpatransfert {
         return transfert;
     }
 
-    public async findByUser(usersId:string, isAdmin=false){
+    public async findByUser(usersId:string){
         const transferts:any[] = [];
-        let  snapshot :any;
-        if(isAdmin){
-            snapshot = await this.db.collection(TRANSFERT_COLLECTION).get();
-        }else{
-            snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('ownerId', '==', usersId).get();
-        }
+        const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('ownerId', '==', usersId).get();
         if (snapshot.empty) {
             throw new functions.https.HttpsError('not-found', 'Transferts Not Found');
         }  

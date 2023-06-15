@@ -19,7 +19,7 @@ const createTransfert = async (transfert: Transfert) => {
 }
 
 const getAllTransfert = async (context:any,isAdmin:boolean) => {
-    let transferts = await transfertJPA.findByUser(context.auth?.uid,isAdmin);
+    let transferts = isAdmin ? await transfertJPA.getAll() : await transfertJPA.findByUser(context.auth?.uid);
     let res = new Response();
     res.body = transferts;
     res.message = "All Tranfert";
