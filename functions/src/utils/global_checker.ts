@@ -12,7 +12,7 @@ db.settings({ ignoreUndefinedProperties: true })
 const check_auth = (context:any) =>{
     if (!context.auth) {throw new functions.https.HttpsError('unauthenticated', 'Authentification not found');}
 }
-const check_role = async (context:any, availableRole:Array<string>) =>{
+const check_role = async (context:any, availableRole:Array<string>) :Promise<any>=>{
     let role:any;
     let jpaUsers = getJpaUsers(db);
     await jpaUsers.getOne(context.auth?.uid).then(
@@ -23,6 +23,7 @@ const check_role = async (context:any, availableRole:Array<string>) =>{
     if (!availableRole.includes(role)) {
         throw new functions.https.HttpsError('permission-denied', 'you do not have permission for do this');
     }
+    return role
 }
 
 const check_transfert = (transfert:Transfert) => {

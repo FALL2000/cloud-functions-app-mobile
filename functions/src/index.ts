@@ -35,8 +35,9 @@ exports.nl_manage_request = functions.https.onCall(async (data, context) => {
                 await check_role(context,SAVE_ROLE);
                 return await createTransfert(transfert);
             case 'GET-ALL':
-                await check_role(context, ALL_ROLE);
-                return await getAllTransfert(context);
+                const role=await check_role(context, ALL_ROLE);
+                const isAdmin= ((<string>role).toUpperCase() == (<string>UserRole.Admin).toUpperCase())
+                return await getAllTransfert(context,isAdmin);
             case 'GET-INFO':
                 await check_role(context, ALL_ROLE);
                 return await getOneTransfert(data.transfertId);
