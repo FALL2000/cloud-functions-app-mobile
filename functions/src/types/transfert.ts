@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
-const  statut = ["OPEN", "IN APPROVAL", "IN PROGRESS", "APPROVED", "CANCELED", "CLOSED WON"];
+import { StatusTranfert } from "../enum/status_enum";
+const  statut = [StatusTranfert.Open, StatusTranfert.InApproval, StatusTranfert.InProgress, StatusTranfert.Approved, StatusTranfert.Canceled, StatusTranfert.ClosedWon];
 export class Transfert {
     status:string= '';
     amount:any;

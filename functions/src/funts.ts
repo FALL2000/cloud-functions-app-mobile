@@ -12,27 +12,42 @@ const transfertJPA= getJpaTransfert(db);
 
 const createTransfert = async (transfert: Transfert) => {
     let transInsert = await transfertJPA.create(transfert);
-    return new Response('201', 'success', transInsert.id);
+    let res = new Response();
+    res.body = transInsert.id;
+    res.message = "Transfert Created";
+    return res;
 }
 
 const getAllTransfert = async (context:any) => {
     let transferts = await transfertJPA.findByUser(context.auth?.uid);
-    return new Response('200', 'success', transferts);
+    let res = new Response();
+    res.body = transferts;
+    res.message = "All Tranfert";
+    return res;
 }
 
 const getOneTransfert = async (transfertId:string) => {
     let transferts = await transfertJPA.getOne(transfertId);
-    return new Response('200', 'success', transferts);
+    let res = new Response();
+    res.body = transferts;
+    res.message = "Transfert Info";
+    return res;
 }
 
 const deleteTransfert = async (transfertId:string) => {
     let transferts = await transfertJPA.delete(transfertId);
-    return new Response('200', 'success', transferts);
+    let res = new Response();
+    res.body = transferts;
+    res.message = "Transfert Deleted";
+    return res;
 }
 
 const updateTransfert = async (transfert: Transfert, transfertId:string) => {
     let transUpdate = await transfertJPA.put(transfertId,transfert);
-    return new Response('201', 'success', transUpdate);
+    let res = new Response();
+    res.body = transUpdate;
+    res.message = "Transfert Updated";
+    return res;
 }
 
 export {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert};

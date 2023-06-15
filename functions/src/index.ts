@@ -5,28 +5,26 @@ import {toTransfert} from "./utils/global_functions";
 import { info} from "firebase-functions/logger";
 import {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert } from "./funts";
 import { Response } from "./types/response";
+import { UserRole } from "./enum/role_enum";
 import { check_auth, check_role, check_transfert } from "./utils/global_checker";
 
 // // Start writing functions
 // // https://firebase.google.com/docs/functions/typescript
 
-const CLIENT_ROLE = process.env.CLIENT_ROLE || 'CLIENT'
-const ADMIN_ROLE = process.env.ADMIN_ROLE || "ADMIN"
-const GESTIONNAIRE_ROLE = process.env.GESTIONNAIRE_ROLE || "GESTIONNAIRE"
-const AGENT_ROLE = process.env.AGENT_ROLE || "AGENT"
 
-const SAVE_ROLE = [CLIENT_ROLE];
-const UPDATE_ROLE = [CLIENT_ROLE,ADMIN_ROLE,GESTIONNAIRE_ROLE];
-const DELETE_ROLE = [CLIENT_ROLE,ADMIN_ROLE,GESTIONNAIRE_ROLE];
-const ALL_ROLE = [CLIENT_ROLE,ADMIN_ROLE,GESTIONNAIRE_ROLE,AGENT_ROLE];
+
+const SAVE_ROLE = [UserRole.Client];
+const UPDATE_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Gestionnaire];
+const DELETE_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Gestionnaire];
+const ALL_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Agent,UserRole.Gestionnaire];
 
 type availableAction = "SAVE" | "DELETE" | 'GET-INFO' | 'GET-ALL' | 'UPDATE';
 
-exports.nlManageRequest = functions.https.onCall(async (data, context) => {
+exports.nl_manage_request = functions.https.onCall(async (data, context) => {
     info(data);
-    check_auth(context);
     let transfert:any;
     try {
+        check_auth(context);
         if(data.transfert){
             transfert = await toTransfert(data.transfert, context);
         }
@@ -53,7 +51,7 @@ exports.nlManageRequest = functions.https.onCall(async (data, context) => {
                 break;
         }
     } catch (error:any) {
-        return new Response("400", error.message, error.code);
+        return Response.error(error);
     }
   
    
