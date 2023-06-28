@@ -1,59 +1,26 @@
 import * as functions from "firebase-functions";
-//import * as admin from "firebase-admin";
-//import {getFirestore} from "firebase-admin/firestore";
-import {toTransfert} from "./utils/global_functions";
 import { info} from "firebase-functions/logger";
-import {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert } from "./funts";
-import { Response } from "./types/response";
-import { UserRole } from "./enum/role_enum";
-import { check_auth, check_role, check_transfert } from "./utils/global_checker";
+const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
 
-// // Start writing functions
-// // https://firebase.google.com/docs/functions/typescript
-
-
-
-const SAVE_ROLE = [UserRole.Client];
-const UPDATE_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Gestionnaire];
-const DELETE_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Gestionnaire];
-const ALL_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Agent,UserRole.Gestionnaire];
-
-type availableAction = "SAVE" | "DELETE" | 'GET-INFO' | 'GET-ALL' | 'UPDATE';
-
-exports.nl_manage_request = functions.https.onCall(async (data, context) => {
-    info(data);
-    let transfert:any;
-    try {
-        check_auth(context);
-        if(data.transfert){
-            transfert = await toTransfert(data.transfert, context);
-        }
-        const action:availableAction = data.action;
-        switch (action) {
-            case 'SAVE':
-                check_transfert(transfert);
-                await check_role(context,SAVE_ROLE);
-                return await createTransfert(transfert);
-            case 'GET-ALL':
-                const role=await check_role(context, ALL_ROLE);
-                const isAdmin= ((<string>role).toUpperCase() == (<string>UserRole.Admin).toUpperCase())
-                return await getAllTransfert(context,isAdmin);
-            case 'GET-INFO':
-                await check_role(context, ALL_ROLE);
-                return await getOneTransfert(data.transfertId);
-            case 'DELETE':
-                await check_role(context, DELETE_ROLE);
-                return await deleteTransfert(data.transfertId);
-            case 'UPDATE':
-                await check_role(context, UPDATE_ROLE);
-                return await updateTransfert(transfert, data.transfertId);
-            default:
-                throw new functions.https.HttpsError('failed-precondition', 'unavailable action');
-                break;
-        }
-    } catch (error:any) {
-        return Response.error(error);
-    }
-  
-   
+exports.request_trigger = functions.firestore
+    .document(TRANSFERT_COLLECTION+'/{transfertId}')
+    .onWrite((change, context) => {
+      const transfertId=context.params.transfertId;
+      info(`Launch request_trigger: transfertId ${transfertId} onWrite: ${JSON.stringify(change)}`)
+      
+      // Get an object with the current document value.
+      // If the document does not exist, it has been deleted.
+      info('....new document')
+      const document = change.after.exists ? change.after.data() : null;
+      info(document)
+      // Get an object with the previous document value (for update or delete)
+      info('....old document')
+      const _document = change.before.data();
+      info(_document)
+      // If we set `/users/marie/incoming_messages/134` to {body: "Hello"} then
+      // context.params.userId == "marie";
+      // context.params.messageCollectionId == "incoming_messages";
+      // context.params.messageId == "134";
+      // ... and ...
+      // change.after.data() == {body: "Hello"}
 });
