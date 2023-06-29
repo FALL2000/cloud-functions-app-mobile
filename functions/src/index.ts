@@ -17,6 +17,13 @@ exports.request_trigger = functions.firestore
       info('....old document')
       const _document = change.before.data();
       info(_document)
+
+
+      const isNew= ! change.before.exists;
+      const isDelete= ! change.after.exists;
+      const isUpdate=  ! (isNew || isDelete);
+
+      info(` IsNEW ${isNew} isDelete ${isDelete} isUpdate ${isUpdate}`)
       // If we set `/users/marie/incoming_messages/134` to {body: "Hello"} then
       // context.params.userId == "marie";
       // context.params.messageCollectionId == "incoming_messages";
