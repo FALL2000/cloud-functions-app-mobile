@@ -1,56 +1,31 @@
 import * as admin from "firebase-admin";
 import {getFirestore} from "firebase-admin/firestore";
-//import { info} from "firebase-functions/logger";
-import { Transfert } from "./types/transfert";
-import { getJpaTransfert } from "./jpa/transfert-jpa";
-import { Response } from "./types/response";
+import { getJpaJob } from "./jpa/job-jpa";
+import { StatusJob } from "./enum/job_status";
 
-const app=admin.initializeApp({},'appFunct');
+const app=admin.initializeApp();
 const db = getFirestore(app);
 db.settings({ ignoreUndefinedProperties: true })
-const transfertJPA= getJpaTransfert(db);
+const jobJPA= getJpaJob(db);
 
-const createTransfert = async (transfert: Transfert) => {
-    let transInsert = await transfertJPA.create(transfert);
-    let res = new Response();
-    res.body = transInsert.id;
-    res.message = "Transfert Created";
-    return res;
+
+
+const exec = async (mutex: any) => {
+    const _job=await selectMostLastAsyncJob(mutex);
+        if(_job) await updateAsyncJob(_job.id)
 }
 
-const getAllTransfert = async (context:any,isAdmin:boolean) => {
-    let transferts = isAdmin ? await transfertJPA.getAll() : await transfertJPA.findByUser(context.auth?.uid);
-    let res = new Response();
-    res.body = transferts;
-    res.message = "All Tranfert";
-    return res;
+const updateAsyncJob = async (jobId:string) => {
+    const _job={
+        status: StatusJob.Ready
+    }
+    await jobJPA.put(jobId,_job);
 }
 
-const getOneTransfert = async (transfertId:string) => {
-    let transferts = await transfertJPA.getOne(transfertId);
-    let res = new Response();
-    res.body = transferts;
-    res.message = "Transfert Info";
-    return res;
+const selectMostLastAsyncJob = async (mutex: any) => {
+    return await jobJPA.getFirstJob(mutex.id);
 }
-
-const deleteTransfert = async (transfertId:string) => {
-    let transferts = await transfertJPA.delete(transfertId);
-    let res = new Response();
-    res.body = transferts;
-    res.message = "Transfert Deleted";
-    return res;
-}
-
-const updateTransfert = async (transfert: Transfert, transfertId:string) => {
-    let transUpdate = await transfertJPA.put(transfertId,transfert);
-    let res = new Response();
-    res.body = transUpdate;
-    res.message = "Transfert Updated";
-    return res;
-}
-
-export {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert};
+export {exec};
 
 
 

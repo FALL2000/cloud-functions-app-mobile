@@ -1,22 +1,19 @@
 import * as functions from "firebase-functions";
 import { info} from "firebase-functions/logger";
-const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
+import { exec } from "./funts";
+const MUTEX_COLLECTION= process.env.MUTEX_COLLECTION || 'Mutex';
+const RUNNING_FIELD='isRunning';
+exports.mutex_trigger = functions.firestore
+    .document(MUTEX_COLLECTION+'/{mutexId}')
+    .onWrite(async (change, context) => {
+      const _univers=context.params.mutexId;
+      info(`Launch request_trigger: _univers ${_univers} }`)
 
-exports.request_trigger = functions.firestore
-    .document(TRANSFERT_COLLECTION+'/{transfertId}')
-    .onWrite((change, context) => {
-      const transfertId=context.params.transfertId;
-      info(`Launch request_trigger: transfertId ${transfertId} onWrite: ${JSON.stringify(change)}`)
-      
-      // Get an object with the current document value.
-      // If the document does not exist, it has been deleted.
-      info('....new document')
-      const document = change.after.exists ? change.after.data() : null;
-      info(document)
-      // Get an object with the previous document value (for update or delete)
-      info('....old document')
-      const _document = change.before.data();
-      info(_document)
+      const _mutex = change.after.exists ? change.after.data() : null;
+      const __mutex = change?.before.data();
+            
+      info('....new document');info(_mutex)
+      info('....old document');info(__mutex)
 
 
       const isNew= ! change.before.exists;
@@ -24,10 +21,13 @@ exports.request_trigger = functions.firestore
       const isUpdate=  ! (isNew || isDelete);
 
       info(` IsNEW ${isNew} isDelete ${isDelete} isUpdate ${isUpdate}`)
-      // If we set `/users/marie/incoming_messages/134` to {body: "Hello"} then
-      // context.params.userId == "marie";
-      // context.params.messageCollectionId == "incoming_messages";
-      // context.params.messageId == "134";
-      // ... and ...
-      // change.after.data() == {body: "Hello"}
+      const isRunning= _mutex?.isRunning
+      _mutex.id= _univers;
+      if ( isUpdate && isChange(RUNNING_FIELD, _mutex, __mutex) && isRunning==false) {
+          await exec(_mutex);
+      }
 });
+const isChange = (field: string, oldObj: any, newObj: any):boolean => {
+    if(! field || ! oldObj || ! newObj) return false;
+    return oldObj[field] !== newObj[field]; 
+}
