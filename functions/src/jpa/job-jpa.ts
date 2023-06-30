@@ -16,7 +16,7 @@ export class JpaJob {
         if (snapshot.empty) {
             throw new functions.https.HttpsError('not-found', 'no async job founded');
         } 
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc:any) => {
             _job={...doc.data(), id: doc.id}
         });
          return _job;
