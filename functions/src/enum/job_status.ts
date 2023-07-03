@@ -1,6 +1,6 @@
-export enum UserRole {
-    Admin =  'ADMIN',
-    Client = 'CLIENT',
-    Agent = 'AGENT',
-    Gestionnaire = 'MANAGER',
+export enum StatusJob {
+    Ready = 'READY',
+    Running = 'RUNNING',
+    Queued = 'QUEUED',
+    Closed = 'CLOSED',
 }
