@@ -6,7 +6,7 @@ import { getJpaTransfert } from "./jpa/transfert-jpa";
 import { getJpaMutex } from "./jpa/mutex-jpa";
 import { Response } from "./types/response";
 
-const app=admin.initializeApp({},'appFunct');
+const app=admin.initializeApp();
 const db = getFirestore(app);
 db.settings({ ignoreUndefinedProperties: true })
 // const transfertJPA= getJpaTransfert(db);
