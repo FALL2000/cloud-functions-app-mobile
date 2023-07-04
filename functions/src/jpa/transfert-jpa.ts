@@ -26,7 +26,7 @@ export class Jpatransfert {
         if (!transfert.exists) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');
         }
-        const req= {...transfert.data(), id: transfert.id};
+        const req:any= {...transfert.data(), id: transfert.id};
         if (req.status!= StatusTranfert.Open) {throw new functions.https.HttpsError('not-found', 'Transfert is not');}
     }
     /*
@@ -61,6 +61,18 @@ export class Jpatransfert {
         });
         return transferts;
     }
+
+    public async findByAmountAndStatus(transfert: Transfert){
+        const transferts:any[] = [];
+        const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('amount', '<=', transfert.amount).where('status', '==', 'OPEN').where('inZone.country.code', '==', transfert.inZone).where('outZone.country.code', '==', transfert.outZone).orderBy('amount','desc').get();
+        if (snapshot.empty) {
+            return null;
+        }else{
+            snapshot.forEach((doc:any) => {
+                transferts.push({...doc.data(), id: doc.id})
+            });
+            return transferts;
+        }   
     */
 
     public async getPotentailRequests( _amount: number,in_zone: string,out_zone: string){
