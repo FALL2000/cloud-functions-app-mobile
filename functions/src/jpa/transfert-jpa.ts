@@ -26,7 +26,7 @@ export class Jpatransfert {
         if (!transfert.exists) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');
         }
-        const req= {...transfert.data(), id: transfert.id};
+        const req:any= {...transfert.data(), id: transfert.id};
         if (req.status!= StatusTranfert.Open) {throw new functions.https.HttpsError('not-found', 'Transfert is not');}
     }
     /*
@@ -61,7 +61,6 @@ export class Jpatransfert {
         });
         return transferts;
     }
-<<<<<<< HEAD
 
     public async findByAmountAndStatus(transfert: Transfert){
         const transferts:any[] = [];
@@ -74,7 +73,6 @@ export class Jpatransfert {
             });
             return transferts;
         }   
-=======
     */
 
     public async getPotentailRequests( _amount: number,in_zone: string,out_zone: string){
@@ -116,7 +114,6 @@ export class Jpatransfert {
             requests.push({...doc.data(), id: doc.id})
         });
         return requests;
->>>>>>> 184eb15add054de5dc110a02ad04a7dfa5e88160
     }
 }
 
