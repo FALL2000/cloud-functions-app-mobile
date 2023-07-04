@@ -59,6 +59,19 @@ export class Jpatransfert {
         });
         return transferts;
     }
+
+    public async findByAmountAndStatus(transfert: Transfert){
+        const transferts:any[] = [];
+        const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('amount', '<=', transfert.amount).where('status', '==', 'OPEN').where('inZone.country.code', '==', transfert.inZone).where('outZone.country.code', '==', transfert.outZone).orderBy('amount','desc').get();
+        if (snapshot.empty) {
+            return null;
+        }else{
+            snapshot.forEach((doc:any) => {
+                transferts.push({...doc.data(), id: doc.id})
+            });
+            return transferts;
+        }   
+    }
 }
 
 export function getJpaTransfert(db: Firestore): Jpatransfert {

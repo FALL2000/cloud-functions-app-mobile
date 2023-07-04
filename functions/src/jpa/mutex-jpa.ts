@@ -9,11 +9,11 @@ export class JpaMutex {
     }
 
     public async getOne(mutexId:any) : Promise<mutex|null>{
-        const mutex =  await this.db.collection(MUTEX_COLLECTION).doc(mutexId).get();
-        if (!mutex.exists) {
+        const _mutex =  await this.db.collection(MUTEX_COLLECTION).doc(mutexId).get();
+        if (!_mutex.exists) {
               return null
         }else{
-            return new mutex(mutexId,mutex.get('isRunning'))
+            return new mutex(<string> mutexId, <boolean> _mutex.get('isRunning'))
         }
     }
 }

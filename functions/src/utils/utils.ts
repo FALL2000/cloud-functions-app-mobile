@@ -1,10 +1,15 @@
 import { Transfert } from "../types/transfert";
 const util:any={};
-util.checkfeasibility = (req:Transfert):boolean=>{
-    return true;//to do
+util.checkfeasibility = (transfert:Transfert):boolean=>{
+    if(transfert.amount && transfert.amount > 0 && transfert.inZone != transfert.outZone){
+        return true;
+    }else{
+        return false;
+    }
 }
-util.buildUnivers  = (req:Transfert):string=>{
-    return 'univers';//to do
+util.buildUnivers  = (transfert:Transfert):string=>{
+    let univers = (transfert.inZone < transfert.outZone) ?  transfert.inZone+''+transfert.outZone : transfert.outZone+''+transfert.inZone
+    return univers;
 }
 export {util}
 
