@@ -23,21 +23,17 @@ export class AsyncJob{
     public static buildSimpleQueuedJob(){
         const _job=new AsyncJob()
         _job.status= StatusJob.Queued;
-        // _job.recordIds= MatchingTriggerList.map(x=>x.id),
         _job.type= typeJob.Simple;//'SIMPLE',
-        _job.createdDate= new Date() ;
-        // _job.univers= _parentJob.univers;
-        _job.lastUpDate= new Date() ;
+        // _job.createdDate= new Date() ;
+        // _job.lastUpDate= new Date() ;
         return _job
     }
     public static buildSimpleReadyJob(){
         const _job=new AsyncJob()
         _job.status= StatusJob.Ready;
-        // _job.recordIds= MatchingTriggerList.map(x=>x.id),
         _job.type= typeJob.Simple;//'SIMPLE',
-        _job.createdDate= new Date() ;
-        // _job.univers= _parentJob.univers;
-        _job.lastUpDate= new Date() ;
+        // _job.createdDate= new Date() ;
+        // _job.lastUpDate= new Date() ;
         return _job
     }
 }
