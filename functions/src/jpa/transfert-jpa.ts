@@ -3,7 +3,7 @@ import { Transfert } from "../types/transfert";
 import {updateField} from "../utils/global_functions";
 import * as functions from "firebase-functions";
 const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
-
+//.
 export class Jpatransfert {
     public db:Firestore;
     public constructor(db: Firestore){
