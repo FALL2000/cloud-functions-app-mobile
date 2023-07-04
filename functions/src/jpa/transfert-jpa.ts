@@ -2,6 +2,9 @@ import { Firestore } from "firebase-admin/firestore";
 import { Transfert } from "../types/transfert";
 import {updateField} from "../utils/global_functions";
 import * as functions from "firebase-functions";
+import { info} from "firebase-functions/logger";
+import { StatusJob } from "../enum/job_status";
+import { StatusTranfert } from "../enum/request_status";
 const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
 
 export class Jpatransfert {
@@ -10,10 +13,8 @@ export class Jpatransfert {
         this.db = db;
     }
 
-    public async create(transfert: Transfert) {
-        return await this.db.collection(TRANSFERT_COLLECTION).add({...transfert});
-    }
-
+    
+    
     public async put(transfertId:string , transfert: Transfert) {
         let fieldUpdate = updateField(transfert);
         const tranfertRef = this.db.collection(TRANSFERT_COLLECTION).doc(transfertId);
@@ -25,9 +26,10 @@ export class Jpatransfert {
         if (!transfert.exists) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');
         }
-        return {...transfert.data(), id: transfert.id};
+        const req= {...transfert.data(), id: transfert.id};
+        if (req.status!= StatusTranfert.Open) {throw new functions.https.HttpsError('not-found', 'Transfert is not');}
     }
-
+    /*
     public async getAll(){
         const transferts:any[] = [];
         const snapshot = await this.db.collection(TRANSFERT_COLLECTION).get();
@@ -47,7 +49,7 @@ export class Jpatransfert {
         const transfert = await this.db.collection(TRANSFERT_COLLECTION).doc(transfertId).delete();
         return transfert;
     }
-
+    
     public async findByUser(usersId:string){
         const transferts:any[] = [];
         const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('ownerId', '==', usersId).get();
@@ -59,6 +61,7 @@ export class Jpatransfert {
         });
         return transferts;
     }
+<<<<<<< HEAD
 
     public async findByAmountAndStatus(transfert: Transfert){
         const transferts:any[] = [];
@@ -71,6 +74,49 @@ export class Jpatransfert {
             });
             return transferts;
         }   
+=======
+    */
+
+    public async getPotentailRequests( _amount: number,in_zone: string,out_zone: string){
+        info(`@@@@...................in getPotentailRequests amount  ${_amount} out_zone ${out_zone}`);
+
+        const requestsRef = this.db.collection(TRANSFERT_COLLECTION);
+        const queryRef = requestsRef.where('inZoneId', '==', out_zone)
+                                        .where('outZoneId', '==', in_zone)
+                                        .where('status', '==', StatusTranfert.Open)
+                                        .where('amount','<=', _amount)
+                                        .orderBy('amount', 'desc');
+        const snapshot = await queryRef.get();
+
+        const requests:any[]=[]
+        if (snapshot.empty) {
+            info('getPotentailRequests :: No matching documents.');
+        }  
+        snapshot.forEach((doc:any) => {
+            info(doc.id, '=>', doc.data());
+            requests.push({...doc.data(), id: doc.id})
+        });
+        return requests;
+    }
+    public async getMatchingTriggerListRequests( _amount: number,in_zone: string,out_zone: string){
+        info(`@@@@...................in getMatchingTriggerListRequests amount  ${_amount} out_zone ${out_zone}`);
+        const requestsRef = this.db.collection(TRANSFERT_COLLECTION);
+        const queryRef = requestsRef.where('inZoneId', '==', out_zone)
+                                        .where('outZoneId', '==', in_zone)
+                                        .where('status', '==', StatusTranfert.Open)
+                                        .where('amount','>', _amount)
+                                        .orderBy('amount', 'desc');
+        const snapshot = await queryRef.get();
+        const requests:any[]=[]
+        if (snapshot.empty) {
+            info('getMatchingTriggerListRequests :: No matching documents.');
+        }  
+        snapshot.forEach((doc:any) => {
+            info(doc.id, '=>', doc.data());
+            requests.push({...doc.data(), id: doc.id})
+        });
+        return requests;
+>>>>>>> 184eb15add054de5dc110a02ad04a7dfa5e88160
     }
 }
 
