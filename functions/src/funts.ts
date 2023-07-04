@@ -3,14 +3,28 @@ import {getFirestore} from "firebase-admin/firestore";
 //import { info} from "firebase-functions/logger";
 import { Transfert } from "./types/transfert";
 import { getJpaTransfert } from "./jpa/transfert-jpa";
+import { getJpaMutex } from "./jpa/mutex-jpa";
 import { Response } from "./types/response";
 
-const app=admin.initializeApp({},'appFunct');
+const app=admin.initializeApp();
 const db = getFirestore(app);
 db.settings({ ignoreUndefinedProperties: true })
-const transfertJPA= getJpaTransfert(db);
+// const transfertJPA= getJpaTransfert(db);
+const mutexJPA= getJpaMutex(db);
 
-const createTransfert = async (transfert: Transfert) => {
+
+const  isRunning =  (univers:string):boolean=>{
+    // const _mutex // query from the mutex table the element with id == univers
+    // if(_mutex.empty()) return false
+    // else return _mutex.isRunning
+    return false
+ }
+ const  updateMutex = async (isRunning:boolean)=>{
+    // const _mutex={ id: univers,isRunning }
+    // upsert _mutex
+}
+
+/*const createTransfert = async (transfert: Transfert) => {
     let transInsert = await transfertJPA.create(transfert);
     let res = new Response();
     res.body = transInsert.id;
@@ -49,7 +63,7 @@ const updateTransfert = async (transfert: Transfert, transfertId:string) => {
     res.message = "Transfert Updated";
     return res;
 }
-
+*/
 export {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert};
 
 
