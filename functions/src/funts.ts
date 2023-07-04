@@ -12,6 +12,7 @@ db.settings({ ignoreUndefinedProperties: true })
 // const transfertJPA= getJpaTransfert(db);
 const mutexJPA= getJpaMutex(db);
 
+let _asyncJob:AsyncJob =  new AsyncJob()
 
 const  isRunning =  (univers:string):boolean=>{
     // const _mutex // query from the mutex table the element with id == univers
@@ -32,36 +33,20 @@ const  isRunning =  (univers:string):boolean=>{
     return res;
 }
 
-const getAllTransfert = async (context:any,isAdmin:boolean) => {
-    let transferts = isAdmin ? await transfertJPA.getAll() : await transfertJPA.findByUser(context.auth?.uid);
-    let res = new Response();
-    res.body = transferts;
-    res.message = "All Tranfert";
-    return res;
+const exec = async (mutex: any) => {
+    const _job=await selectMostLastAsyncJob(mutex);
+        if(_job) await updateAsyncJob(_job.id)
 }
 
-const getOneTransfert = async (transfertId:string) => {
-    let transferts = await transfertJPA.getOne(transfertId);
-    let res = new Response();
-    res.body = transferts;
-    res.message = "Transfert Info";
-    return res;
+const updateAsyncJob = async (jobId:string) => {
+    const _job={
+        status: StatusJob.Ready
+    }
+    await jobJPA.put(jobId,_job);
 }
 
-const deleteTransfert = async (transfertId:string) => {
-    let transferts = await transfertJPA.delete(transfertId);
-    let res = new Response();
-    res.body = transferts;
-    res.message = "Transfert Deleted";
-    return res;
-}
-
-const updateTransfert = async (transfert: Transfert, transfertId:string) => {
-    let transUpdate = await transfertJPA.put(transfertId,transfert);
-    let res = new Response();
-    res.body = transUpdate;
-    res.message = "Transfert Updated";
-    return res;
+const selectMostLastAsyncJob = async (mutex: any) => {
+    return await jobJPA.getFirstJob(mutex.id);
 }
 */
 export {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert};

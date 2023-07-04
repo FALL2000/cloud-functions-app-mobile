@@ -16,6 +16,18 @@ export class Transfert {
     inZone:any;
     outZone:any;
     codeReception:string='';
+    amount:number=0;
+    inZoneId:string='';
+    outZoneId:string='';
+
+    public checkfeasibility():boolean{
+        return true
+    }
+    public static buildRequest(req:any): Transfert{
+        const _req= new Transfert()
+
+        return _req
+    }
     public owner:any={};
 
     public fromJson(transfert:any){
@@ -66,5 +78,4 @@ export class Transfert {
     public setOutZone(outZoneCity:any){
         this.outZone = outZoneCity;
     }
-
 }
