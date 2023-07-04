@@ -1,5 +1,8 @@
-export enum RequestJob {
+export enum StatusTranfert {
     Open = 'OPEN',
-    Queued = 'QUEUED',
-    Closed = 'CLOSED',
+    InApproval = 'IN APPROVAL',
+    InProgress = 'IN PROGRESS',
+    Approved = 'APPROVED',
+    Canceled = 'CANCELED',
+    ClosedWon = 'CLOSED WON',
 }

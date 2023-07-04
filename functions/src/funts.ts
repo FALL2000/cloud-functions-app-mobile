@@ -39,14 +39,14 @@ const updateAsyncJob = async (jobId:string) => {
 const  isComplexeJob =  ()=>{
     return _asyncJob.type==typeJob.Complexe;
 }
-const  updateMutex = async (isRunning:boolean)=>{
-    const mutexJPA= getJpaMutex(db);
+const  updateMutex = async (isRunning:boolean)=>{ 
+    
     const _mutex={ isRunning }
-    await mutexJPA.put(_asyncJob.univers,{..._mutex})
+    await getJpaMutex(db).put(_asyncJob.univers,{..._mutex})
 }   
 const  runComplexJob = async ()=>{
     const _primaryReqId= _asyncJob.id || _asyncJob.recordIds[0]
-    const _request_match= new request_match(db, _primaryReqId)
+    const _request_match= new request_match(db, _primaryReqId,_asyncJob)
     await _request_match.doComplexeMatch()
 }
 const  runSimpleJob = async ()=>{
