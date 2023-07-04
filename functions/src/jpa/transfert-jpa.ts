@@ -2,6 +2,8 @@ import { Firestore } from "firebase-admin/firestore";
 import { Transfert } from "../types/transfert";
 import {updateField} from "../utils/global_functions";
 import * as functions from "firebase-functions";
+import { info} from "firebase-functions/logger";
+import { StatusJob } from "../enum/job_status";
 const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
 
 export class Jpatransfert {
@@ -10,9 +12,7 @@ export class Jpatransfert {
         this.db = db;
     }
 
-    public async create(transfert: Transfert) {
-        return await this.db.collection(TRANSFERT_COLLECTION).add({...transfert});
-    }
+    
 
     public async put(transfertId:string , transfert: Transfert) {
         let fieldUpdate = updateField(transfert);
@@ -58,6 +58,25 @@ export class Jpatransfert {
             transferts.push({...doc.data(), id: doc.id})
         });
         return transferts;
+    }
+
+
+    public async getPotentailRequests( amount: number,in_zone: string,out_zone: string,comp:any = '<='){
+        info(`@@@@...................in getOthersRequests amount  ${amount} out_zone ${out_zone} comp ${comp}`);
+        const requestsRef = this.db.collection(TRANSFERT_COLLECTION);
+        const queryRef = requestsRef.where('inZoneId', '==', out_zone)
+                                        .where('outZoneId', '==', in_zone)
+                                        .where('status', '==', StatusJ).where('amount',comp, amount);
+        const snapshot = await queryRef.get();
+        const requests:any[]=[]
+        if (snapshot.empty) {
+            console.log('getOthersRequests :: No matching documents.');
+        }  
+        snapshot.forEach(doc => {
+            info(doc.id, '=>', doc.data());
+            requests.push({...doc.data(), id: doc.id})
+        });
+        return requests;
     }
 }
 
