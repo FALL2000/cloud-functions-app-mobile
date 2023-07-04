@@ -1,22 +1,24 @@
 import * as functions from "firebase-functions";
 import { info} from "firebase-functions/logger";
 import { exec } from "./funts";
-const MUTEX_COLLECTION= process.env.MUTEX_COLLECTION || 'Mutex';
-const RUNNING_FIELD='isRunning';
-let _mutex:any=null
-let __mutex:any=null
-exports.mutex_trigger = functions.firestore
-    .document(MUTEX_COLLECTION+'/{mutexId}')
+import { StatusJob } from "./enum/job_status";
+const ASYNCJOB_COLLECTION= process.env.ASYNCJOB_COLLECTION || 'AsyncJob';
+const STATUS_FIELD='status';
+const STATUS_READY=process.env.STATUS_READY || StatusJob.Ready;
+let _asyncJob:any=null
+let __asyncJob:any=null
+exports.job_trigger = functions.firestore
+    .document(ASYNCJOB_COLLECTION+'/{jobId}')
     .onWrite(async (change, context) => {
 
-      const _univers=context.params.mutexId;
-      info(`Launch mutex_trigger: _univers ${_univers} }`)
+      const jobId=context.params.jobId;
+      info(`Launch job_trigger: jobId ${jobId} }`)
 
-      _mutex = change.after.exists ? change.after.data() : null;
-      __mutex = change.before.exists ? change.before.data() : null;;
+      _asyncJob = change.after.exists ? change.after.data() : {};
+      __asyncJob = change.before.exists ? change.before.data() : {};;
             
-      info('....new document');info(_mutex)
-      info('....old document');info(__mutex)
+      info('....new document');info(_asyncJob)
+      info('....old document');info(__asyncJob)
 
 
       const isNew= ! change.before.exists;
@@ -24,13 +26,13 @@ exports.mutex_trigger = functions.firestore
       const isUpdate=  ! (isNew || isDelete);
 
       info(` IsNEW ${isNew} isDelete ${isDelete} isUpdate ${isUpdate}`)
-
-      const isRunning= _mutex?.isRunning
-      if ( isUpdate && runningChanged() && isRunning==false) {
-          await exec({..._mutex,id:_univers});
-      }
+    
+    const status= _asyncJob[STATUS_FIELD]
+    if ( (isNew || (isUpdate && statusChanged()) ) && status==STATUS_READY) {
+        await exec({..._asyncJob,id:jobId});
+    }
 });
-const runningChanged = ()=> { return isChange(RUNNING_FIELD, _mutex, __mutex)}
+const statusChanged = ()=> { return isChange(STATUS_FIELD, _asyncJob, __asyncJob)}
 const isChange = (field: string, oldObj: any, newObj: any):boolean => {
     if(! field || ! oldObj || ! newObj) return false;
     return oldObj[field] !== newObj[field]; 

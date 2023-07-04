@@ -1,5 +1,6 @@
 import { Firestore } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
+import { AsyncJob } from "../types/job";
 const ASYNCJOB_COLLECTION= process.env.ASYNCJOB_COLLECTION || 'AsyncJob';
 
 export class JpaJob {
@@ -23,6 +24,23 @@ export class JpaJob {
     public async put(jobId:string , _job: any) {
         const jobRef = this.db.collection(ASYNCJOB_COLLECTION).doc(jobId);
         return await jobRef.set({..._job}, { merge: true });
+    }
+    public async create(  _job: any) {
+        return await this.db.collection(ASYNCJOB_COLLECTION).add({..._job});
+
+    }
+
+    public async  createAsyncJobTriggerSimple(MatchingTriggerList:any[], _parentJob:AsyncJob){
+        const __asyncJobTrigger:AsyncJob= AsyncJob.buildSimpleQueuedJob();
+        __asyncJobTrigger.recordIds= MatchingTriggerList.map(x=>x.id);
+        __asyncJobTrigger.univers= _parentJob.univers
+        return await this.create(__asyncJobTrigger.toSave())
+    }
+    public async  createNextAsyncJobTriggerSimple (recordIds:any[], _parentJob:AsyncJob){
+        const __asyncJobTrigger:AsyncJob= AsyncJob.buildSimpleReadyJob();
+        __asyncJobTrigger.recordIds= recordIds;
+        __asyncJobTrigger.univers= _parentJob.univers
+        return await this.create(__asyncJobTrigger.toSave())
     }
 }
 
