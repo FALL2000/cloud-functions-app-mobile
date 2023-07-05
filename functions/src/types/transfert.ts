@@ -1,3 +1,5 @@
+import { StatusTranfert } from "../enum/request_status";
+
 export class Transfert {
     id:string='';
     amount:number=0;
@@ -5,6 +7,7 @@ export class Transfert {
     outZoneId:string='';
     currency:string='';
     ownerId:string='';
+    status:string='';
    
     /*constructor(id:string, amount:number, inZone:string, outZone:string, currency:string){
         this.id = id;
@@ -29,6 +32,12 @@ export class Transfert {
         _req.outZoneId = req.outZone.country.code;
         _req.currency = req.outZone.country.currency;
         _req.ownerId = req.ownerId;
+        _req.status = req.status;
         return _req;
+    }
+    public static moveToApprovalState():any{
+        return {
+            status : StatusTranfert.InApproval
+        }
     }
 }
