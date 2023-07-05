@@ -48,7 +48,8 @@ const match_algo = (transfertsList:any,transfert:Transfert, amount:number)=>{
         }
         return [...couple.valids]
     });
-    return _tabCouple.flat();
+    const suitableList = findBestCouple(_tabCouple.flat());
+    return suitableList;
 }
 
 
@@ -85,6 +86,18 @@ const _add=(currElement:any,maxRemaining:any,couples:any,valids:any,founded:bool
         founded
     }
 
+}
+
+const findBestCouple = (tabCouple:any)=>{
+    let lengthMin = tabCouple[0].length;
+    let suitableList = tabCouple[0];
+    for(const key in tabCouple){
+        if(tabCouple[key].length < lengthMin){
+            suitableList = tabCouple[key];
+            lengthMin = tabCouple[key].length;
+        }
+    }
+    return suitableList;
 }
 
 export {match_algo}
