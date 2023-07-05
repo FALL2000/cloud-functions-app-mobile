@@ -28,16 +28,16 @@ export class Transfert {
     }
     public static buildRequest(req:any): Transfert{
         info("Building request: " + JSON.stringify(req))
-        // const _req= new Transfert()
-        const _req=Object.assign(new Transfert(), req)
+        const _req= new Transfert()
+        // const _req=Object.assign(new Transfert(), req)
        
-        // _req.amount = req.amount;
-        // _req.id = req.id;
+        _req.amount = req.amount;
+        _req.id = req.id;
         _req.inZoneId = <string> util.getValue(req,'inZone.country.code');//req.inZone.country.code;
         _req.outZoneId =<string> util.getValue(req,'outZone.country.code');// req.outZone.country.code;
         _req.currency =<string> util.getValue(req,'outZone.country.currency');// req.outZone.country.currency;
-        // _req.ownerId = req.ownerId;
-        // _req.status = req.status;
+        _req.ownerId = req.ownerId;
+        _req.status = req.status;
         info(_req)
         return _req;
     }
