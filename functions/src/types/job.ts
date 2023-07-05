@@ -18,6 +18,8 @@ export class AsyncJob{
     public static buildJob(job:any){
         const _job=new AsyncJob()
         _job.id=job.id
+        _job.recordIds=job.recordIds
+        (job.createdDate)?_job.createdDate=job.createdDate:''
         _job.univers=job.univers
         _job.status=<StatusJob>job.status
         _job.type=<typeJob>job.type

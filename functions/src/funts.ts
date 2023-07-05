@@ -63,7 +63,8 @@ const  runSimpleJob = async ()=>{
     await _request_match.doSimpleMatch()
 
     if(recordIds.length == 0)//is last job of the sequence 
-        return await updateMutex(false)
+       { info('is last job of the sequence ')
+        return await updateMutex(false)}
     else
         return await jobJPA.createNextAsyncJobTriggerSimple(recordIds,_asyncJob)
     
