@@ -15,7 +15,11 @@ export class Transfert {
     }*/
 
     public checkfeasibility():boolean{
-        return true
+        if(this.amount && this.amount > 0 && this.inZoneId != this.outZoneId){
+            return true;
+        }else{
+            return false;
+        }
     }
     public static buildRequest(req:any): Transfert{
         const _req= new Transfert()

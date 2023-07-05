@@ -1,8 +1,10 @@
 import { Firestore } from "firebase-admin/firestore";
+import * as functions from "firebase-functions";
 import { getJpaTransfert } from "../jpa/transfert-jpa";
 import { Transfert } from "../types/transfert";
 import { getJpaJob } from "../jpa/job-jpa";
 import { AsyncJob } from "../types/job";
+import { Match } from "./find_match";
 
 export class request_match{
     requestId: string='';
@@ -20,12 +22,16 @@ export class request_match{
         const req=getJpaTransfert(this.db).getOne(this.requestId );// get the request from database where id==req.id and status=='OPEN'
         this._req=Transfert.buildRequest(req)
         if(this._req.checkfeasibility()){
-                // filed _amount
-                this._amount = await this.convertAmount()
-                //call find_match(req = {id, amount, inzoneid, outzoneid}, _amount)
-                return true // todo true if founded
-        }else{ /**end of job */}
-        
+            // filed _amount
+            this._amount = await this.convertAmount()
+            let match:Match = new Match(this.db, this._req, this._amount);
+            if(await match.findMatch()){
+                return true;
+            } //call find_match(req = {id, amount, inzoneid, outzoneid}, _amount) // todo true if founded 
+        }else{
+            throw new functions.https.HttpsError('failed-precondition', 'not possible');
+            /**end of job */
+        }
         return true
     }
     public doComplexeMatch = async ()=>{

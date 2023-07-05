@@ -14,11 +14,11 @@ export class Match{
         this.transfert = transfert;
         this.amount = amount;
     }
-    public findMatch = async (transfert:Transfert, amount:number):Promise<any>=>{
-        const potentialReqs = await getJpaTransfert(this.db).getPotentailRequests(amount, transfert.inZoneId, transfert.outZoneId);
-        if(potentialReqs){
-            let suitableList= match_algo(potentialReqs, transfert, amount)
-            if(await this.checkRequest(suitableList, amount, transfert)){
+    public findMatch = async ():Promise<any>=>{
+        const potentialReqs = await getJpaTransfert(this.db).getPotentailRequests(this.amount, this.transfert.inZoneId, this.transfert.outZoneId);
+        if(potentialReqs.length > 0){
+            let suitableList= match_algo(potentialReqs, this.transfert, this.amount)
+            if(await this.checkRequest(suitableList)){
                 return true
             }
             return false
@@ -26,11 +26,11 @@ export class Match{
         return false
     }
     
-    public checkRequest= async (suitableList:any, amount: number, transfert:Transfert)=>{
-         const transferts = await getJpaTransfert(this.db).getMany(suitableList, amount, transfert);
+    public checkRequest= async (suitableList:any)=>{
+         const transferts = await getJpaTransfert(this.db).getMany(suitableList, this.amount, this.transfert);
          let valeurInitiale = 0;
          let somme = transferts.reduce(
               (accumulateur, valeurCourante) => accumulateur + valeurCourante.amount, valeurInitiale);
-        return somme == amount ? true : false;
+        return somme == this.amount ? true : false;
     }
 }
