@@ -26,11 +26,7 @@ const  updateMutex = async (isRunning:boolean)=>{
     // upsert _mutex
 }
 
-const findMatch = (transfert:Transfert):any=>{
-   
-}
-
-export {isRunning, updateMutex, findMatch};
+export {isRunning, updateMutex};
 
 
 

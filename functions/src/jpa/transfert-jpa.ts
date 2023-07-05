@@ -79,8 +79,8 @@ export class Jpatransfert {
         info(`@@@@...................in getPotentailRequests amount  ${_amount} out_zone ${out_zone}`);
 
         const requestsRef = this.db.collection(TRANSFERT_COLLECTION);
-        const queryRef = requestsRef.where('inZoneId', '==', out_zone)
-                                        .where('outZoneId', '==', in_zone)
+        const queryRef = requestsRef.where('inZone.country.code', '==', out_zone)
+                                        .where('outZone.country.code', '==', in_zone)
                                         .where('status', '==', StatusTranfert.Open)
                                         .where('amount','<=', _amount)
                                         .orderBy('amount', 'desc');
@@ -99,8 +99,8 @@ export class Jpatransfert {
     public async getMatchingTriggerListRequests( _amount: number,in_zone: string,out_zone: string){
         info(`@@@@...................in getMatchingTriggerListRequests amount  ${_amount} out_zone ${out_zone}`);
         const requestsRef = this.db.collection(TRANSFERT_COLLECTION);
-        const queryRef = requestsRef.where('inZoneId', '==', out_zone)
-                                        .where('outZoneId', '==', in_zone)
+        const queryRef = requestsRef.where('inZone.country.code', '==', out_zone)
+                                        .where('outZone.country.code', '==', in_zone)
                                         .where('status', '==', StatusTranfert.Open)
                                         .where('amount','>', _amount)
                                         .orderBy('amount', 'desc');

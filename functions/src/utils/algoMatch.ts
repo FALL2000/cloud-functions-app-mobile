@@ -3,9 +3,8 @@ import { Transfert } from "../types/transfert";
 const AMOUNT_FIELD = 'amount'
 const MAX_COUPLE_SIZE=3
 
-const match_algo = (transfertsList:any,transfert:Transfert)=>{
-    //call convert amount function
-    const theAmount = transfert.amount;
+const match_algo = (transfertsList:any,transfert:Transfert, amount:number)=>{
+    const theAmount = amount;
     let tabCouple:any[] = [];
     let max=0;
 
@@ -88,7 +87,4 @@ const _add=(currElement:any,maxRemaining:any,couples:any,valids:any,founded:bool
 
 }
 
-const convertAmount = (amount:number) => {
-
-}
 export {match_algo}

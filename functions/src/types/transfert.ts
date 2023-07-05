@@ -4,6 +4,7 @@ export class Transfert {
     inZoneId:string='';
     outZoneId:string='';
     currency:string='';
+    ownerId:string='';
    
     /*constructor(id:string, amount:number, inZone:string, outZone:string, currency:string){
         this.id = id;
@@ -18,10 +19,12 @@ export class Transfert {
     }
     public static buildRequest(req:any): Transfert{
         const _req= new Transfert()
-
-        return _req
+        _req.amount = req.amount;
+        _req.id = req.id;
+        _req.inZoneId = req.inZone.country.code;
+        _req.outZoneId = req.outZone.country.code;
+        _req.currency = req.outZone.country.currency;
+        _req.ownerId = req.ownerId;
+        return _req;
     }
-    public owner:any={};
-
-    
 }
