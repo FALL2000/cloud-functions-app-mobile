@@ -39,8 +39,7 @@ export class Jpatransfert {
                                            .where('inZone.country.code', '==', request.outZoneId)
                                            .where('outZone.country.code', '==', request.inZoneId)
                                            .where('status', '==', StatusTranfert.Open)
-                                           .where('amount','<=', _amount)
-                                           .orderBy('amount', 'desc').get();
+                                           .where('amount','<=', _amount).get();
         
         if (snapshot.empty) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');

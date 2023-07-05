@@ -5,7 +5,7 @@ import { Transfert } from "../types/transfert";
 import { getJpaJob } from "../jpa/job-jpa";
 import { AsyncJob } from "../types/job";
 import { Match } from "./find_match";
-
+type FROM_TYPE= 'COMPLEXE' | 'SIMPLE'
 export class request_match{
     requestId: string='';
     _amount: number=0;
@@ -18,25 +18,22 @@ export class request_match{
         this.requestId = requestId;
         this._asyncJob=parentJob
     }
-    public doSimpleMatch = async ():Promise<boolean>=>{
+    public doSimpleMatch = async (from?:FROM_TYPE):Promise<boolean>=>{
         const req=getJpaTransfert(this.db).getOne(this.requestId );// get the request from database where id==req.id and status=='OPEN'
         this._req=Transfert.buildRequest(req)
         if(this._req.checkfeasibility()){
             // filed _amount
             this._amount = await this.convertAmount()
-            let match:Match = new Match(this.db, this._req, this._amount);
-            if(await match.findMatch()){
-                return true;
-            } //call find_match(req = {id, amount, inzoneid, outzoneid}, _amount) // todo true if founded 
+            let match:Match = new Match(this.db, this._req, this._amount,from);
+            return await match.findMatch() //call find_match(req = {id, amount, inzoneid, outzoneid}, _amount) // todo true if founded 
         }else{
             throw new functions.https.HttpsError('failed-precondition', 'not possible');
             /**end of job */
         }
-        return true
     }
     public doComplexeMatch = async ()=>{
         // const primaryReqId=this.requestId
-        if(await this.doSimpleMatch()) return;
+        if(await this.doSimpleMatch('COMPLEXE')) return;
         else{
             const in_zone= this._req.outZoneId
             const out_zone= this._req.inZoneId
@@ -48,7 +45,7 @@ export class request_match{
     }
     public convertAmount = async ():Promise<number>=>{
         //this._req
-
-        return 10;
+        //call rateModule...in progress by yves
+        return this._req.amount;
     }
 }

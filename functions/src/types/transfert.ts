@@ -34,10 +34,21 @@ export class Transfert {
         _req.ownerId = req.ownerId;
         _req.status = req.status;
         return _req;
+<<<<<<< HEAD
+    }
+    public static moveToApprovalState():any{
+        return {
+            status : StatusTranfert.InApproval
+        }
+=======
+>>>>>>> job_trigger
     }
     public static moveToApprovalState():any{
         return {
             status : StatusTranfert.InApproval
         }
     }
+    public owner:any={};
+
+    
 }
