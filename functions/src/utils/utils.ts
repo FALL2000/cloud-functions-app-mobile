@@ -18,7 +18,7 @@ function getValue(obj:any,field:string):any{
     info("getValue called with field: " + field+ " and obj: " + JSON.stringify(obj))
     if(!!field && field.includes('.')) {
       obj=obj[field.split('.')[0]];
-      field=field.split('.')[1];
+      field=field.substring( field.indexOf('.')+1)//field.split('.')[1];
       return getValue(obj, field)
     }
     else {
