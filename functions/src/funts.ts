@@ -17,6 +17,7 @@ let _asyncJob:AsyncJob =  new AsyncJob()
 
 
 const exec = async (job: any) => {
+    info("Executing")
     _asyncJob=AsyncJob.buildJob({...job})
     await updateMutex(true);
     await perfomJob();
