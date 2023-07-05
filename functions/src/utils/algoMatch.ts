@@ -3,9 +3,8 @@ import { Transfert } from "../types/transfert";
 const AMOUNT_FIELD = 'amount'
 const MAX_COUPLE_SIZE=3
 
-const match_algo = (transfertsList:any,transfert:Transfert)=>{
-    //call convert amount function
-    const theAmount = transfert.amount;
+const match_algo = (transfertsList:any,transfert:Transfert, amount:number)=>{
+    const theAmount = amount;
     let tabCouple:any[] = [];
     let max=0;
 
@@ -49,7 +48,11 @@ const match_algo = (transfertsList:any,transfert:Transfert)=>{
         }
         return [...couple.valids]
     });
-    return _tabCouple.flat();
+    const suitableList = findBestCouple(flatten(_tabCouple));
+    return suitableList;
+}
+const flatten= (tab:any[][])=>{
+    return tab.reduce((accumulator, subArray) => accumulator.concat(subArray), []);
 }
 
 
@@ -88,7 +91,16 @@ const _add=(currElement:any,maxRemaining:any,couples:any,valids:any,founded:bool
 
 }
 
-const convertAmount = (amount:number) => {
-
+const findBestCouple = (tabCouple:any)=>{
+    let lengthMin = tabCouple[0].length;
+    let suitableList = tabCouple[0];
+    for(const key in tabCouple){
+        if(tabCouple[key].length < lengthMin){
+            suitableList = tabCouple[key];
+            lengthMin = tabCouple[key].length;
+        }
+    }
+    return suitableList;
 }
+
 export {match_algo}
