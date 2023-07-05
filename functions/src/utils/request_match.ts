@@ -20,9 +20,9 @@ export class request_match{
         this._asyncJob=parentJob
     }
     public doSimpleMatch = async (from?:FROM_TYPE):Promise<boolean>=>{
-        info("doSimpleMatch on from: " + from);
-        const req=getJpaTransfert(this.db).getOne(this.requestId );// get the request from database where id==req.id and status=='OPEN'
-        this._req=Transfert.buildRequest(req)
+        info("doSimpleMatch on from: " + from + ", requestId: " + this.requestId);
+        this._req=await getJpaTransfert(this.db).getOne(this.requestId );// get the request from database where id==req.id and status=='OPEN'
+        // this._req=Transfert.buildRequest(req)
         if(this._req.checkfeasibility()){
             // filed _amount
             this._amount = await this.convertAmount()

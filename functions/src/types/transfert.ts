@@ -20,6 +20,7 @@ export class Transfert {
     }*/
 
     public checkfeasibility():boolean{
+        info("checkfeasibility:::: amount: " + this.amount+" and inZone: " + this.inZoneId+" and outZone: "+this.outZoneId+" and currency: " + this.currency)
         if(this.amount && this.amount > 0 && this.inZoneId != this.outZoneId){
             return true;
         }else{

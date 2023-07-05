@@ -20,7 +20,10 @@ export class Match{
         this.from=from
     }
     public findMatch = async ():Promise<any>=>{
+        info("Running findMatch")
         const potentialReqs = await getJpaTransfert(this.db).getPotentailRequests(this.amount, this.transfert.inZoneId, this.transfert.outZoneId);
+        info("...potentialReqs")
+        info(potentialReqs)
         if(potentialReqs.length > 0){
             let suitableList= match_algo(potentialReqs, this.transfert, this.amount)
             if(await this.checkRequest(suitableList)){
