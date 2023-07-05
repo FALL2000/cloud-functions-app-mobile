@@ -1,6 +1,8 @@
 
 import { Firestore } from "firebase-admin/firestore";
 import { mutex } from "../types/mutex";
+
+import { info} from "firebase-functions/logger";
 const MUTEX_COLLECTION= process.env.MUTEX_COLLECTION || 'Mutex';
 
 export class JpaMutex {
@@ -18,6 +20,8 @@ export class JpaMutex {
         }
     }
     public async put(mutexId:string , _mutex: any) {
+        info("put mutex : mutexId ",mutexId)
+        info(_mutex)
         const mutexRef = this.db.collection(MUTEX_COLLECTION).doc(mutexId);
         return await mutexRef.set({..._mutex}, { merge: true });
     }

@@ -5,6 +5,7 @@ import { Transfert } from "../types/transfert";
 import { getJpaJob } from "../jpa/job-jpa";
 import { AsyncJob } from "../types/job";
 import { Match } from "./find_match";
+import { info} from "firebase-functions/logger";
 type FROM_TYPE= 'COMPLEXE' | 'SIMPLE'
 export class request_match{
     requestId: string='';
@@ -19,6 +20,7 @@ export class request_match{
         this._asyncJob=parentJob
     }
     public doSimpleMatch = async (from?:FROM_TYPE):Promise<boolean>=>{
+        info("doSimpleMatch on from: " + from);
         const req=getJpaTransfert(this.db).getOne(this.requestId );// get the request from database where id==req.id and status=='OPEN'
         this._req=Transfert.buildRequest(req)
         if(this._req.checkfeasibility()){
@@ -32,9 +34,11 @@ export class request_match{
         }
     }
     public doComplexeMatch = async ()=>{
+        info('doComplexeMatch ')
         // const primaryReqId=this.requestId
         if(await this.doSimpleMatch('COMPLEXE')) return;
         else{
+            info('no match founded')
             const in_zone= this._req.outZoneId
             const out_zone= this._req.inZoneId
 

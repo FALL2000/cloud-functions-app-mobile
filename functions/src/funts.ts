@@ -2,11 +2,12 @@ import * as admin from "firebase-admin";
 import {getFirestore} from "firebase-admin/firestore";
 import { getJpaJob } from "./jpa/job-jpa";
 import { getJpaMutex } from "./jpa/mutex-jpa";
-import { StatusJob } from "./enum/job_status";
+// import { StatusJob } from "./enum/job_status";
 import { AsyncJob } from "./types/job";
 import { typeJob } from "./enum/job_type";
 import { request_match } from "./utils/request_match";
 
+import { info} from "firebase-functions/logger";
 const app=admin.initializeApp();
 const db = getFirestore(app);
 db.settings({ ignoreUndefinedProperties: true })
@@ -22,6 +23,7 @@ const exec = async (job: any) => {
     if(isComplexeJob()) await updateMutex(false);
 }
 const  perfomJob = async ()=>{
+    info("Running perfom")
     if(isComplexeJob()) {
        await runComplexJob();
     }else{
@@ -29,34 +31,36 @@ const  perfomJob = async ()=>{
     }
  
 }
-const updateAsyncJob = async (jobId:string) => {
-    const _job={
-        status: StatusJob.Ready
-    }
-    await jobJPA.put(jobId,_job);
-}
+// const updateAsyncJob = async (jobId:string) => {
+//     const _job={
+//         status: StatusJob.Ready
+//     }
+//     await jobJPA.put(jobId,_job);
+// }
 
 const  isComplexeJob =  ()=>{
+    info("Running isComplexeJob _type: " + _asyncJob.type)
     return _asyncJob.type==typeJob.Complexe;
 }
 const  updateMutex = async (isRunning:boolean)=>{ 
-    
+    info('updating mutex : isRunning : '+isRunning)
     const _mutex={ isRunning }
     await getJpaMutex(db).put(_asyncJob.univers,{..._mutex})
 }   
 const  runComplexJob = async ()=>{
+    info('Running complex job')
     const _primaryReqId= _asyncJob.id || _asyncJob.recordIds[0]
     const _request_match= new request_match(db, _primaryReqId,_asyncJob)
     await _request_match.doComplexeMatch()
 }
 const  runSimpleJob = async ()=>{
-
+    info('Running simple job')
     if(_asyncJob.recordIds?.length <= 0) return null;
 
     const recordIds=[..._asyncJob.recordIds]
     const _reqid= recordIds.shift() ||'';
     const _request_match= new request_match(db, _reqid)
-    const founded = await _request_match.doSimpleMatch()
+    await _request_match.doSimpleMatch()
 
     if(recordIds.length == 0)//is last job of the sequence 
         return await updateMutex(false)

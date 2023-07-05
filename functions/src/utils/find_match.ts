@@ -4,6 +4,8 @@ import * as functions from "firebase-functions";
 import { match_algo } from "../utils/algoMatch";
 import { getJpaTransfert } from "../jpa/transfert-jpa";
 import { TransactionManager } from "./manage_transaction";
+import { info} from "firebase-functions/logger";
+import { Approval } from "../types/approval";
 type FROM_TYPE= 'COMPLEXE' | 'SIMPLE'
 
 export class Match{
@@ -24,14 +26,19 @@ export class Match{
             if(await this.checkRequest(suitableList)){
                 suitableList.unshift(this.transfert)
                 const transactionManager= new TransactionManager(this.db,suitableList,this.from) 
-                const approvalRequests=transactionManager.openTransaction();
+                const approvalRequests=await transactionManager.openTransaction();
                 //call notif service with this list of approval requests;
+                await this.callNotificationService(approvalRequests)
                 return true
             }
             return false
         }
         return false
     }
+    public callNotificationService = async (approvalRequests:Approval[]):Promise<any>=>{
+        info(approvalRequests)
+    }
+
     
     public checkRequest= async (suitableList:any):Promise<boolean>=>{
 

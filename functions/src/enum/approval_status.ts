@@ -1,4 +1,3 @@
-import { StatusTranfert } from "./status_enum";
 
 export enum StatusApproval  {
     Open = 'NEW',//send to client
