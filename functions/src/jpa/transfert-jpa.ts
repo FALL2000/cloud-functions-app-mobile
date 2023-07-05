@@ -68,7 +68,7 @@ export class Jpatransfert {
         }  
         snapshot.forEach((doc:any) => {
             info(doc.id, '=>', doc.data());
-            requests.push({...doc.data(), id: doc.id})
+            requests.push(Transfert.buildRequest({...doc.data(), id: doc.id}))
         });
         return requests;
     }
@@ -87,7 +87,7 @@ export class Jpatransfert {
         }  
         snapshot.forEach((doc:any) => {
             info(doc.id, '=>', doc.data());
-            requests.push({...doc.data(), id: doc.id})
+            requests.push(Transfert.buildRequest({...doc.data(), id: doc.id}))
         });
         return requests;
     }

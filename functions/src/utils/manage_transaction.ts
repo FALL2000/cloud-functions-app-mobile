@@ -34,19 +34,20 @@ export class TransactionManager{
         
         // create transaction
         const transaction= Transaction.initTransaction()
-        batch = getJpa(this.db).put(transaction.code,transaction,batch) // const transref = this.db.collection(TRANSACTION_COLLECTION).doc(transaction.code); batch.set(transref, transaction);
+        batch = await getJpa(this.db).put(transaction.code,transaction,batch) // const transref = this.db.collection(TRANSACTION_COLLECTION).doc(transaction.code); batch.set(transref, transaction);
     
-        
-        this.transferts.forEach((_transfert,index) =>{
-
+        for (let index = 0; index < this.transferts.length; index++) {
+            
+            const _transfert = this.transferts[index];
             const approval=Approval.initApproval(_transfert,transaction,(index==0))
-            batch = getApprovalJpa(this.db).put(approval.code,approval,batch) // const sfRef = this.db.collection(APPROVAL_COLLECTION).doc(approval.code); batch.set(sfRef, approval);
+            batch = await getApprovalJpa(this.db).put(approval.code,approval,batch) // const sfRef = this.db.collection(APPROVAL_COLLECTION).doc(approval.code); batch.set(sfRef, approval);
             
             const __transfert = Transfert.moveToApprovalState()
-            batch = getJpaTransfert(this.db).put(_transfert.id,__transfert,batch) // const transfref = this.db.collection(TRANSFERT_COLLECTION).doc(_transfert.id);  batch.update(transfref, {"status":"IN APPROVAL"});
+            batch = await getJpaTransfert(this.db).put(_transfert.id,__transfert,batch) // const transfref = this.db.collection(TRANSFERT_COLLECTION).doc(_transfert.id);  batch.update(transfref, {"status":"IN APPROVAL"});
         
             ApprovalRequests.push(approval)
-        })
+        }
+        
         
     
         // Commit the batch
