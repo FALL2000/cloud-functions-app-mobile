@@ -39,6 +39,9 @@ export class Transfert {
         _req.currency =<string> util.getValue(req,'outZone.country.currency');// req.outZone.country.currency;
         _req.ownerId = req.ownerId;
         _req.status = req.status;
+
+        const {lastname,firstname} = req.owner
+        _req.owner={lastname,firstname}
         info(_req)
         return _req;
     }

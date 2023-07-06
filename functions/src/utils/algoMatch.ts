@@ -48,7 +48,7 @@ const match_algo = (transfertsList:any,transfert:Transfert, amount:number)=>{
         }*/
         return [...couple.valids]
     });
-    const suitableList = findBestCouple(flatten(_tabCouple));
+    const suitableList = _tabCouple.length > 0 ? findBestCouple(flatten(_tabCouple)) : [];
     return suitableList;
 }
 const flatten= (tab:any[][])=>{

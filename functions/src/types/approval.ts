@@ -13,8 +13,8 @@ export class Approval {
     endDate:string;
     startDate:string;
     status:StatusApproval ;
-    transfert?: Transfert;
-    transaction?: Transaction;
+    transfert?: Transfert | any;
+    transaction?: Transaction | any;
     
     constructor(){
         this.id = "";
@@ -30,8 +30,8 @@ export class Approval {
     public static initApproval(transfert:Transfert,transaction: Transaction, isprimary:boolean):Approval{
         const _approval = new Approval()
         _approval.status = StatusApproval.InApproval;
-        _approval.transfert = transfert;
-        _approval.transaction = transaction;
+        _approval.transfert = {...transfert};
+        _approval.transaction = {...transaction};
         _approval.clientId = transfert?.ownerId;
         _approval.fees = Approval.calculatefees(transfert);
         (isprimary)? _approval.notificationType= typeNotification.Informative : typeNotification.Approbation

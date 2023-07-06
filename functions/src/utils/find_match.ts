@@ -6,6 +6,8 @@ import { getJpaTransfert } from "../jpa/transfert-jpa";
 import { TransactionManager } from "./manage_transaction";
 import { info} from "firebase-functions/logger";
 import { Approval } from "../types/approval";
+import { Message } from "../types/message";
+import { publish } from "./notification_service";
 type FROM_TYPE= 'COMPLEXE' | 'SIMPLE'
 
 export class Match{
@@ -26,6 +28,7 @@ export class Match{
         info(potentialReqs)
         if(potentialReqs.length > 0){
             let suitableList= match_algo(potentialReqs, this.transfert, this.amount)
+            if(suitableList.length == 0){ return false; }
             if(await this.checkRequest(suitableList)){
                 suitableList.unshift(this.transfert)
                 const transactionManager= new TransactionManager(this.db,suitableList,this.from) 
@@ -40,18 +43,21 @@ export class Match{
     }
     public callNotificationService = async (approvalRequests:Approval[]):Promise<any>=>{
         info(approvalRequests)
+        const approvalIds= approvalRequests.map(x=>x.id)
+        const _messageToPublish= Message.BuidApprovalMessageMultiple(approvalIds) 
+        await publish(_messageToPublish)
     }
 
     
-    public checkRequest= async (suitableList:any):Promise<boolean>=>{
-
+    public checkRequest= async (suitableList:any[]):Promise<boolean>=>{
+        info("Running check request")
         const transfertJPA=getJpaTransfert(this.db);
 
         const __transfert:Transfert=await transfertJPA.getOne(this.transfert?.id);
         if(!this.check(__transfert)){ throw new functions.https.HttpsError('not-found', 'findMatch::checkRequest::check:::Data Compromized'); }
         this.transfert=__transfert;
 
-        const transferts = await transfertJPA.getMany(suitableList, this.amount, this.transfert);
+        const transferts = await transfertJPA.getMany(suitableList?.map(x=>x.id) || [], this.amount, this.transfert);
         let valeurInitiale = 0;
         let somme = transferts.reduce(
             (accumulateur, valeurCourante) => accumulateur + valeurCourante.amount, valeurInitiale);

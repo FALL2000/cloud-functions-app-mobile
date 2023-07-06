@@ -14,6 +14,7 @@ export class Jpatransfert {
     
     
     public async put(transfertId:string , transfert: Transfert, batch?:any) {
+        info("Running Put Transfert Id: "+transfertId+" with transfert "+JSON.stringify(transfert));
         const transref = this.db.collection(TRANSFERT_COLLECTION).doc(transfertId);
         if (batch) {
             batch.update(transref, {...transfert});
@@ -23,28 +24,41 @@ export class Jpatransfert {
     }
 
     public async getOne(transfertId:string):Promise<Transfert>{
+        info("Running getOne ")
+        info('transfertId '+transfertId)
         const transfert = await this.db.collection(TRANSFERT_COLLECTION).doc(transfertId).get();
         if (!transfert.exists) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');
         }
         const req:any= {...transfert.data(), id: transfert.id};
         if (req.status!= StatusTranfert.Open) {throw new functions.https.HttpsError('not-found', 'Transfert is not');}
-
-        return Transfert.buildRequest(req)
+        const _req= Transfert.buildRequest(req)
+        
+        return _req
     }
     
     public async getMany(transfertIds:string[], _amount: number,request:Transfert):Promise<Transfert[]>{
+        info("Running getMany ")
+        info('transfertIds')
+        info(transfertIds)
+        info('_amount')
+        info(_amount)
+        info('request')
+        info(request)
         const transferts:Transfert[] = [];
         const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where(FieldPath.documentId(), 'in', transfertIds)
                                            .where('inZone.country.code', '==', request.outZoneId)
                                            .where('outZone.country.code', '==', request.inZoneId)
                                            .where('status', '==', StatusTranfert.Open)
-                                           .where('amount','<=', _amount).get();
+                                        //    .where('amount','<=', _amount) //generating firebase error not allowed in combination with FieldPath.documentId()
+                                        //    .orderBy('amount', 'desc')
+                                           .get();
         
         if (snapshot.empty) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');
         }
         snapshot.forEach((doc:any) => {
+
             transferts.push(Transfert.buildRequest({...doc.data(), id: doc.id}))
         });
         return transferts;
