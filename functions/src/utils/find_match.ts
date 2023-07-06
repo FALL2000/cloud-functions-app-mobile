@@ -28,6 +28,7 @@ export class Match{
         info(potentialReqs)
         if(potentialReqs.length > 0){
             let suitableList= match_algo(potentialReqs, this.transfert, this.amount)
+            if(suitableList.length == 0){ return false; }
             if(await this.checkRequest(suitableList)){
                 suitableList.unshift(this.transfert)
                 const transactionManager= new TransactionManager(this.db,suitableList,this.from) 
