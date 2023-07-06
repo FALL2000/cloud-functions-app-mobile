@@ -27,12 +27,14 @@ export class request_match{
             let match:Match = new Match(this.db, this._req, this._amount);
             if(await match.findMatch()){
                 return true;
-            } //call find_match(req = {id, amount, inzoneid, outzoneid}, _amount) // todo true if founded 
+                //call find_match(req = {id, amount, inzoneid, outzoneid}, _amount) // todo true if founded 
+            }else{
+                return false;
+            }
         }else{
             throw new functions.https.HttpsError('failed-precondition', 'not possible');
             /**end of job */
         }
-        return true
     }
     public doComplexeMatch = async ()=>{
         // const primaryReqId=this.requestId
