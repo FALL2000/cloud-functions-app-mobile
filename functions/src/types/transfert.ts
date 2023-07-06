@@ -1,3 +1,7 @@
+import { StatusTranfert } from "../enum/request_status";
+import { util } from "../utils/utils";
+import { info} from "firebase-functions/logger";
+
 export class Transfert {
     id:string='';
     amount:number=0;
@@ -5,6 +9,7 @@ export class Transfert {
     outZoneId:string='';
     currency:string='';
     ownerId:string='';
+    status:string='';
    
     /*constructor(id:string, amount:number, inZone:string, outZone:string, currency:string){
         this.id = id;
@@ -15,6 +20,7 @@ export class Transfert {
     }*/
 
     public checkfeasibility():boolean{
+        info("checkfeasibility:::: amount: " + this.amount+" and inZone: " + this.inZoneId+" and outZone: "+this.outZoneId+" and currency: " + this.currency)
         if(this.amount && this.amount > 0 && this.inZoneId != this.outZoneId){
             return true;
         }else{
@@ -22,13 +28,27 @@ export class Transfert {
         }
     }
     public static buildRequest(req:any): Transfert{
+        info("Building request: " + JSON.stringify(req))
         const _req= new Transfert()
+        // const _req=Object.assign(new Transfert(), req)
+       
         _req.amount = req.amount;
         _req.id = req.id;
-        _req.inZoneId = req.inZone.country.code;
-        _req.outZoneId = req.outZone.country.code;
-        _req.currency = req.outZone.country.currency;
+        _req.inZoneId = <string> util.getValue(req,'inZone.country.code');//req.inZone.country.code;
+        _req.outZoneId =<string> util.getValue(req,'outZone.country.code');// req.outZone.country.code;
+        _req.currency =<string> util.getValue(req,'outZone.country.currency');// req.outZone.country.currency;
         _req.ownerId = req.ownerId;
+        _req.status = req.status;
+        info(_req)
         return _req;
     }
+    public static moveToApprovalState():any{
+        info("MoveToApprovalState")
+        return {
+            status : StatusTranfert.InApproval
+        }
+    }
+    public owner:any={};
+
+    
 }

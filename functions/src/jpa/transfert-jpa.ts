@@ -2,7 +2,6 @@ import { Firestore, FieldPath } from "firebase-admin/firestore";
 import { Transfert } from "../types/transfert";
 import * as functions from "firebase-functions";
 import { info} from "firebase-functions/logger";
-import { StatusJob } from "../enum/job_status";
 import { StatusTranfert } from "../enum/request_status";
 const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
 
@@ -14,23 +13,28 @@ export class Jpatransfert {
 
     
     
-    public async put(transfertId:string , transfert: Transfert) {
-        /*let fieldUpdate = updateField(transfert);
-        const tranfertRef = this.db.collection(TRANSFERT_COLLECTION).doc(transfertId);
-        return await tranfertRef.set({...fieldUpdate}, { merge: true });*/
+    public async put(transfertId:string , transfert: Transfert, batch?:any) {
+        const transref = this.db.collection(TRANSFERT_COLLECTION).doc(transfertId);
+        if (batch) {
+            batch.update(transref, {...transfert});
+            return batch;
+        }else 
+            return await transref.set({...transfert}, { merge: true });
     }
 
-    public async getOne(transfertId:string){
+    public async getOne(transfertId:string):Promise<Transfert>{
         const transfert = await this.db.collection(TRANSFERT_COLLECTION).doc(transfertId).get();
         if (!transfert.exists) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');
         }
         const req:any= {...transfert.data(), id: transfert.id};
         if (req.status!= StatusTranfert.Open) {throw new functions.https.HttpsError('not-found', 'Transfert is not');}
+
+        return Transfert.buildRequest(req)
     }
     
-    public async getMany(transfertIds:string[], _amount: number,request:Transfert){
-        const transferts:any[] = [];
+    public async getMany(transfertIds:string[], _amount: number,request:Transfert):Promise<Transfert[]>{
+        const transferts:Transfert[] = [];
         const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where(FieldPath.documentId(), 'in', transfertIds)
                                            .where('inZone.country.code', '==', request.outZoneId)
                                            .where('outZone.country.code', '==', request.inZoneId)
@@ -40,57 +44,12 @@ export class Jpatransfert {
         if (snapshot.empty) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');
         }
-        snapshot.forEach(doc => {
-            transferts.push({...doc.data(), id: doc.id})
+        snapshot.forEach((doc:any) => {
+            transferts.push(Transfert.buildRequest({...doc.data(), id: doc.id}))
         });
         return transferts;
         
     }
-    /*
-    public async getAll(){
-        const transferts:any[] = [];
-        const snapshot = await this.db.collection(TRANSFERT_COLLECTION).get();
-        if (snapshot.empty) {
-            throw new functions.https.HttpsError('not-found', 'Transferts Not Found');
-        }  
-        snapshot.forEach(doc => {
-            transferts.push({...doc.data(), id: doc.id})
-        });
-        return transferts;
-    }
-
-    public async delete(transfertId:string){
-        if (!transfertId) {
-            throw new functions.https.HttpsError('not-found', 'Missing Transfert Id for deletion');
-        }
-        const transfert = await this.db.collection(TRANSFERT_COLLECTION).doc(transfertId).delete();
-        return transfert;
-    }
-    
-    public async findByUser(usersId:string){
-        const transferts:any[] = [];
-        const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('ownerId', '==', usersId).get();
-        if (snapshot.empty) {
-            throw new functions.https.HttpsError('not-found', 'Transferts Not Found');
-        }  
-        snapshot.forEach((doc:any) => {
-            transferts.push({...doc.data(), id: doc.id})
-        });
-        return transferts;
-    }
-
-    public async findByAmountAndStatus(transfert: Transfert){
-        const transferts:any[] = [];
-        const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('amount', '<=', transfert.amount).where('status', '==', 'OPEN').where('inZone.country.code', '==', transfert.inZone).where('outZone.country.code', '==', transfert.outZone).orderBy('amount','desc').get();
-        if (snapshot.empty) {
-            return null;
-        }else{
-            snapshot.forEach((doc:any) => {
-                transferts.push({...doc.data(), id: doc.id})
-            });
-            return transferts;
-        }   
-    */
 
     public async getPotentailRequests( _amount: number,in_zone: string,out_zone: string){
         info(`@@@@...................in getPotentailRequests amount  ${_amount} out_zone ${out_zone}`);
@@ -109,7 +68,7 @@ export class Jpatransfert {
         }  
         snapshot.forEach((doc:any) => {
             info(doc.id, '=>', doc.data());
-            requests.push({...doc.data(), id: doc.id})
+            requests.push(Transfert.buildRequest({...doc.data(), id: doc.id}))
         });
         return requests;
     }
@@ -128,7 +87,7 @@ export class Jpatransfert {
         }  
         snapshot.forEach((doc:any) => {
             info(doc.id, '=>', doc.data());
-            requests.push({...doc.data(), id: doc.id})
+            requests.push(Transfert.buildRequest({...doc.data(), id: doc.id}))
         });
         return requests;
     }

@@ -42,14 +42,17 @@ const match_algo = (transfertsList:any,transfert:Transfert, amount:number)=>{
         max =(max < res ) ? res : max
     }
     const _tabCouple= tabCouple.filter(item=>item.founded).map(couple => {
-        const match= {
+        /*const match= {
             out:[...[...couple.valids].map(item=>item.id)],
             in : transfert,
-        }
+        }*/
         return [...couple.valids]
     });
-    const suitableList = findBestCouple(_tabCouple.flat());
+    const suitableList = findBestCouple(flatten(_tabCouple));
     return suitableList;
+}
+const flatten= (tab:any[][])=>{
+    return tab.reduce((accumulator, subArray) => accumulator.concat(subArray), []);
 }
 
 

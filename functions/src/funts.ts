@@ -1,16 +1,31 @@
 import * as admin from "firebase-admin";
 import {getFirestore} from "firebase-admin/firestore";
-//import { info} from "firebase-functions/logger";
-//import { Transfert } from "./types/transfert";
-//import { getJpaTransfert } from "./jpa/transfert-jpa";
 import { getJpaMutex } from "./jpa/mutex-jpa";
-import { Transfert } from "./types/transfert";
+import { getJpaJob } from "./jpa/job-jpa";
+import { util } from "./utils/utils";
+import { request_match } from "./utils/request_match";
+import { AsyncJob } from "./types/job";
 
 const app=admin.initializeApp();
 const db = getFirestore(app);
 db.settings({ ignoreUndefinedProperties: true })
 // const transfertJPA= getJpaTransfert(db);
 const mutexJPA= getJpaMutex(db);
+const jobJPA= getJpaJob(db);
+
+let asyncJob:AsyncJob =  new AsyncJob()
+
+const triggerLogic = async (transfertId:string) =>{
+    let univers = util.buildUnivers();
+    let recordIds = [transfertId];
+    if(await isRunning(univers)){
+        await jobJPA.createAsyncJobTriggerComplexe(recordIds, univers);
+    }else{
+        await updateMutex(true, univers);
+        const _request_match = new request_match(db, transfertId, asyncJob);
+        await _request_match.doComplexeMatch();
+    }
+}
 
 const  isRunning =  async (univers:string):Promise<boolean> => {
     let mutex = await mutexJPA.getOne(univers);
@@ -21,12 +36,12 @@ const  isRunning =  async (univers:string):Promise<boolean> => {
     }
 }
 
-const  updateMutex = async (isRunning:boolean)=>{
-    // const _mutex={ id: univers,isRunning }
-    // upsert _mutex
+const  updateMutex = async (isRunning:boolean, univers:string)=>{
+    const mutex={ isRunning }
+    await getJpaMutex(db).put(univers,{...mutex})
 }
 
-export {isRunning, updateMutex};
+export {triggerLogic};
 
 
 
