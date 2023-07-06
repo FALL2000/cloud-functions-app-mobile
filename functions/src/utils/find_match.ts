@@ -6,6 +6,8 @@ import { getJpaTransfert } from "../jpa/transfert-jpa";
 import { TransactionManager } from "./manage_transaction";
 import { info} from "firebase-functions/logger";
 import { Approval } from "../types/approval";
+import { Message } from "../types/message";
+import { publish } from "./notification_service";
 type FROM_TYPE= 'COMPLEXE' | 'SIMPLE'
 
 export class Match{
@@ -40,6 +42,9 @@ export class Match{
     }
     public callNotificationService = async (approvalRequests:Approval[]):Promise<any>=>{
         info(approvalRequests)
+        const approvalIds= approvalRequests.map(x=>x.id)
+        const _messageToPublish= Message.BuidApprovalMessageMultiple(approvalIds) 
+        await publish(_messageToPublish)
     }
 
     
