@@ -50,7 +50,7 @@ export class Match{
 
     
     public checkRequest= async (suitableList:any):Promise<boolean>=>{
-
+        info("Running check request")
         const transfertJPA=getJpaTransfert(this.db);
 
         const __transfert:Transfert=await transfertJPA.getOne(this.transfert?.id);

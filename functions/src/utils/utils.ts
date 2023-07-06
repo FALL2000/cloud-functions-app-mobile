@@ -9,13 +9,14 @@ util.checkfeasibility = (transfert:Transfert):boolean=>{
     }
 }
 util.buildUnivers  = (transfert:Transfert):string=>{
-    let univers = (transfert.inZoneId < transfert.outZoneId) ?  transfert.inZoneId+''+transfert.outZoneId : transfert.outZoneId+''+transfert.inZoneId
+    let univers = (transfert.inZoneId < transfert.outZoneId) ?  transfert.inZoneId+'-'+transfert.outZoneId : transfert.outZoneId+''+transfert.inZoneId
+    info("buildUnivers univers: " + univers)
     return univers;
 }
 function getValue(obj:any,field:string):any{
     
     if (!field || !obj) return ''
-    info("getValue called with field: " + field+ " and obj: " + JSON.stringify(obj))
+    //info("getValue called with field: " + field+ " and obj: " + JSON.stringify(obj))
     if(!!field && field.includes('.')) {
       obj=obj[field.split('.')[0]];
       field=field.substring( field.indexOf('.')+1)//field.split('.')[1];
@@ -23,7 +24,7 @@ function getValue(obj:any,field:string):any{
     }
     else {
         const value=obj[field];
-        info("getValue value: " + value)
+        //info("getValue value: " + value)
         return value
     }
 }
