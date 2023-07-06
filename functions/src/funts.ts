@@ -7,7 +7,8 @@ import { AsyncJob } from "./types/job";
 import { typeJob } from "./enum/job_type";
 import { request_match } from "./utils/request_match";
 
-import { info} from "firebase-functions/logger";
+import { info,error} from "firebase-functions/logger";
+import { StatusJob } from "./enum/job_status";
 const app=admin.initializeApp();
 const db = getFirestore(app);
 db.settings({ ignoreUndefinedProperties: true })
@@ -18,10 +19,18 @@ let _asyncJob:AsyncJob =  new AsyncJob()
 
 const exec = async (job: any) => {
     info("Executing")
-    _asyncJob=AsyncJob.buildJob({...job})
-    await updateMutex(true);
-    await perfomJob();
-    if(isComplexeJob()) await updateMutex(false);
+    try {
+        _asyncJob=AsyncJob.buildJob({...job})
+        await updateMutex(true);
+        await perfomJob();
+        if(isComplexeJob()) await updateMutex(false);
+    } catch (error:any) {
+        // close JOB with error status
+        const __job = {error: true, errMessage: error.message}
+        await closeJob(job.id,__job)
+        await updateMutex(false);
+    }
+    
 }
 const  perfomJob = async ()=>{
     info("Running perfom")
@@ -30,14 +39,16 @@ const  perfomJob = async ()=>{
     }else{
         await runSimpleJob();
     }
- 
+    const __job = {error: false,}
+    await closeJob(_asyncJob.id,__job)
 }
-// const updateAsyncJob = async (jobId:string) => {
-//     const _job={
-//         status: StatusJob.Ready
-//     }
-//     await jobJPA.put(jobId,_job);
-// }
+const closeJob = async (jobId:string,_job:any) => {
+    const __job={
+        status: StatusJob.Closed,
+        ..._job
+    }
+    await jobJPA.put(jobId,__job);
+}
 
 const  isComplexeJob =  ()=>{
     info("Running isComplexeJob _type: " + _asyncJob.type)
@@ -60,8 +71,16 @@ const  runSimpleJob = async ()=>{
 
     const recordIds=[..._asyncJob.recordIds]
     const _reqid= recordIds.shift() ||'';
-    const _request_match= new request_match(db, _reqid)
-    await _request_match.doSimpleMatch()
+    try {
+        const _request_match= new request_match(db, _reqid)
+        await _request_match.doSimpleMatch()  
+    } catch (_error:any) {
+        error(_error)
+        //create a log 
+        const __job = {error: true, errMessage: _error.message}
+        await closeJob(_asyncJob.id,__job)
+    }
+    
 
     if(recordIds.length == 0)//is last job of the sequence 
        { info('is last job of the sequence ')

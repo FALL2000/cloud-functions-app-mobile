@@ -14,6 +14,7 @@ export class Jpatransfert {
     
     
     public async put(transfertId:string , transfert: Transfert, batch?:any) {
+        info("Running Put Transfert Id: "+transfertId+" with transfert "+JSON.stringify(transfert));
         const transref = this.db.collection(TRANSFERT_COLLECTION).doc(transfertId);
         if (batch) {
             batch.update(transref, {...transfert});
@@ -49,8 +50,9 @@ export class Jpatransfert {
                                            .where('inZone.country.code', '==', request.outZoneId)
                                            .where('outZone.country.code', '==', request.inZoneId)
                                            .where('status', '==', StatusTranfert.Open)
-                                           .where('amount','<=', _amount)
-                                           .orderBy('amount', 'desc').get();
+                                        //    .where('amount','<=', _amount) //generating firebase error not allowed in combination with FieldPath.documentId()
+                                        //    .orderBy('amount', 'desc')
+                                           .get();
         
         if (snapshot.empty) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');

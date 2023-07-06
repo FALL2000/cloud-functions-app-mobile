@@ -33,23 +33,26 @@ export class TransactionManager{
         
         
         // create transaction
+        info(`@@@@...................create transaction `);
         const transaction= Transaction.initTransaction()
         batch = await getJpa(this.db).put(transaction.code,transaction,batch) // const transref = this.db.collection(TRANSACTION_COLLECTION).doc(transaction.code); batch.set(transref, transaction);
     
         for (let index = 0; index < this.transferts.length; index++) {
             
             const _transfert = this.transferts[index];
+            info(`@@@@.......START:Handle ${index}............${_transfert.id} `);
             const approval=Approval.initApproval(_transfert,transaction,(index==0))
             batch = await getApprovalJpa(this.db).put(approval.code,approval,batch) // const sfRef = this.db.collection(APPROVAL_COLLECTION).doc(approval.code); batch.set(sfRef, approval);
             
             const __transfert = Transfert.moveToApprovalState()
             batch = await getJpaTransfert(this.db).put(_transfert.id,__transfert,batch) // const transfref = this.db.collection(TRANSFERT_COLLECTION).doc(_transfert.id);  batch.update(transfref, {"status":"IN APPROVAL"});
-        
+            info(`@@@@...................view batch `);
+            info(batch)
             ApprovalRequests.push(approval)
         }
         
         
-    
+        info(`@@@@...................Commit the batch `);
         // Commit the batch
         await batch.commit();
         return ApprovalRequests;

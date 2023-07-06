@@ -1,5 +1,6 @@
 import { Firestore } from "firebase-admin/firestore";
 import { Transaction } from "../types/transaction";
+import { info} from "firebase-functions/logger";
 
 const TRANSACTION_COLLECTION = process.env.TRANSACTION_COLLECTION || 'Transaction';
 
@@ -11,6 +12,7 @@ class Jpa {
         this.db = db;
     }
     public async put(transac_id:string, transaction: Transaction, batch?:any) {
+        info("Running Put transaction Id: "+transac_id+" with transaction "+JSON.stringify(transaction));
         const transref = this.db.collection(TRANSACTION_COLLECTION).doc(transac_id);
         if (batch) {
             batch.set(transref, {...transaction});

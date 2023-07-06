@@ -49,7 +49,7 @@ export class Match{
     }
 
     
-    public checkRequest= async (suitableList:any):Promise<boolean>=>{
+    public checkRequest= async (suitableList:any[]):Promise<boolean>=>{
         info("Running check request")
         const transfertJPA=getJpaTransfert(this.db);
 
@@ -57,7 +57,7 @@ export class Match{
         if(!this.check(__transfert)){ throw new functions.https.HttpsError('not-found', 'findMatch::checkRequest::check:::Data Compromized'); }
         this.transfert=__transfert;
 
-        const transferts = await transfertJPA.getMany(suitableList, this.amount, this.transfert);
+        const transferts = await transfertJPA.getMany(suitableList?.map(x=>x.id) || [], this.amount, this.transfert);
         let valeurInitiale = 0;
         let somme = transferts.reduce(
             (accumulateur, valeurCourante) => accumulateur + valeurCourante.amount, valeurInitiale);
