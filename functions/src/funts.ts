@@ -13,17 +13,21 @@ db.settings({ ignoreUndefinedProperties: true })
 const mutexJPA= getJpaMutex(db);
 const jobJPA= getJpaJob(db);
 
-let asyncJob:AsyncJob =  new AsyncJob()
 
 const triggerLogic = async (transfertId:string) =>{
     let univers = util.buildUnivers();
-    let recordIds = [transfertId];
-    if(await isRunning(univers)){
-        await jobJPA.createAsyncJobTriggerComplexe(recordIds, univers);
-    }else{
-        await updateMutex(true, univers);
-        const _request_match = new request_match(db, transfertId, asyncJob);
-        await _request_match.doComplexeMatch();
+    try{
+        let recordIds = [transfertId];
+        if(await isRunning(univers)){
+            await jobJPA.createAsyncJobTriggerComplexe(recordIds, univers);
+        }else{
+            await updateMutex(true, univers);
+            const _request_match = new request_match(db, transfertId);
+            await _request_match.doComplexeMatch();
+        }
+    }catch(error:any){
+        error(error)
+        await updateMutex(false, univers);
     }
 }
 
