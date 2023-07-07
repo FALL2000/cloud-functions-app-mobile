@@ -7,7 +7,8 @@ export class Transfert {
     amount:number=0;
     inZoneId:string='';
     outZoneId:string='';
-    currency:string='';
+    outZoneCurrency:string='';
+    inZoneCurrency:string='';
     ownerId:string='';
     status:string='';
    
@@ -36,7 +37,8 @@ export class Transfert {
         _req.id = req.id;
         _req.inZoneId = <string> util.getValue(req,'inZone.country.code');//req.inZone.country.code;
         _req.outZoneId =<string> util.getValue(req,'outZone.country.code');// req.outZone.country.code;
-        _req.currency =<string> util.getValue(req,'outZone.country.currency');// req.outZone.country.currency;
+        _req.outZoneCurrency =<string> util.getValue(req,'outZone.country.currency');// req.outZone.country.currency;
+        _req.inZoneCurrency =<string> util.getValue(req,'inZone.country.currency');// req.inZone.country.currency;
         _req.ownerId = req.ownerId;
         _req.status = req.status;
 
