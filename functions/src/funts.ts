@@ -14,15 +14,18 @@ const mutexJPA= getJpaMutex(db);
 const jobJPA= getJpaJob(db);
 
 
+
 const triggerLogic = async (transfertId:string) =>{
     let univers = util.buildUnivers();
+    let asyncJob:AsyncJob =  new AsyncJob()
+    asyncJob.univers = univers;
     try{
         let recordIds = [transfertId];
         if(await isRunning(univers)){
             await jobJPA.createAsyncJobTriggerComplexe(recordIds, univers);
         }else{
             await updateMutex(true, univers);
-            const _request_match = new request_match(db, transfertId);
+            const _request_match = new request_match(db, transfertId, asyncJob);
             await _request_match.doComplexeMatch();
         }
     }catch(error:any){
