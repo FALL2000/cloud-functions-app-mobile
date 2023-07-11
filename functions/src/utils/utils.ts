@@ -11,7 +11,7 @@ util.checkfeasibility = (transfert:Transfert):boolean=>{
     }
 }
 util.buildUnivers  = (inZoneId:string, outZoneId:string):string=>{
-    let univers = (inZoneId < outZoneId) ?  inZoneId+'-'+outZoneId : outZoneId+''+inZoneId;
+    let univers = (inZoneId < outZoneId) ?  inZoneId+'-'+outZoneId : outZoneId+'-'+inZoneId;
     info("buildUnivers univers: " + univers)
     return univers;
 }
