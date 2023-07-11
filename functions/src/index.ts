@@ -18,6 +18,6 @@ exports.request_trigger = functions.firestore
       const validField =  amountChange || statusChange || inZoneChange || outZoneChange;
 
       if(isNew || (isUpdate && validField)){
-         await triggerLogic(transfertId);
+         await triggerLogic(transfertId, change.after.get('inZone.country.code'),change.after.get('outZone.country.code'));
       }
 });

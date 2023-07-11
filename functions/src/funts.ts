@@ -9,14 +9,13 @@ import { AsyncJob } from "./types/job";
 const app=admin.initializeApp();
 const db = getFirestore(app);
 db.settings({ ignoreUndefinedProperties: true })
-// const transfertJPA= getJpaTransfert(db);
 const mutexJPA= getJpaMutex(db);
 const jobJPA= getJpaJob(db);
 
 
 
-const triggerLogic = async (transfertId:string) =>{
-    let univers = util.buildUnivers();
+const triggerLogic = async (transfertId:string, inZoneId:string, outZoneId:string) =>{
+    let univers = util.buildUnivers(inZoneId,outZoneId);
     let asyncJob:AsyncJob =  new AsyncJob()
     asyncJob.univers = univers;
     try{

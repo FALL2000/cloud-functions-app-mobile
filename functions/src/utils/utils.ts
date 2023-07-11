@@ -1,5 +1,7 @@
 import { Transfert } from "../types/transfert";
 import { info} from "firebase-functions/logger";
+
+
 const util:any={};
 util.checkfeasibility = (transfert:Transfert):boolean=>{
     if(transfert.amount && transfert.amount > 0 && transfert.inZoneId != transfert.outZoneId){
@@ -8,8 +10,8 @@ util.checkfeasibility = (transfert:Transfert):boolean=>{
         return false;
     }
 }
-util.buildUnivers  = (transfert:Transfert):string=>{
-    let univers = (transfert.inZoneId < transfert.outZoneId) ?  transfert.inZoneId+'-'+transfert.outZoneId : transfert.outZoneId+''+transfert.inZoneId
+util.buildUnivers  = (inZoneId:string, outZoneId:string):string=>{
+    let univers = (inZoneId < outZoneId) ?  inZoneId+'-'+outZoneId : outZoneId+''+inZoneId;
     info("buildUnivers univers: " + univers)
     return univers;
 }
