@@ -26,6 +26,7 @@ const triggerLogic = async (transfertId:string, inZoneId:string, outZoneId:strin
             await updateMutex(true, univers);
             const _request_match = new request_match(db, transfertId, asyncJob);
             await _request_match.doComplexeMatch();
+            await updateMutex(false, univers);
         }
     }catch(error:any){
         error(error)
