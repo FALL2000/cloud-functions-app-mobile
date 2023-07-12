@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import { info} from "firebase-functions/logger";
 import { triggerLogic } from "./funts";
+import { StatusTranfert } from "./enum/request_status";
 const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
 
 exports.request_trigger = functions.firestore
@@ -12,7 +13,7 @@ exports.request_trigger = functions.firestore
       const isDelete= ! change.after.exists;
       const isUpdate=  ! (isNew || isDelete);
       const amountChange = change.before.get('amount') != change.after.get('amount');
-      const statusChange = change.before.get('status') != change.after.get('status');
+      const statusChange = (change.before.get('status') != change.after.get('status')) && change.after.get('status') == StatusTranfert.Open;
       const inZoneChange = change.before.get('inZone.country.code') != change.after.get('inZone.country.code');
       const outZoneChange = change.before.get('outZone.country.code') != change.after.get('outZone.country.code');
       const validField =  amountChange || statusChange || inZoneChange || outZoneChange;
