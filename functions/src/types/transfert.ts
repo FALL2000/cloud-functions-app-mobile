@@ -1,4 +1,3 @@
-import { Timestamp } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 import { StatusTranfert } from "../enum/status_enum";
 const  statut = [StatusTranfert.Open, StatusTranfert.InApproval, StatusTranfert.InProgress, StatusTranfert.Approved, StatusTranfert.Canceled, StatusTranfert.ClosedWon];
@@ -35,10 +34,6 @@ export class Transfert {
         }
         if(transfert.description){
             this.description = transfert.description;
-        }
-        if(transfert.createdDate){
-            this.createdDate = Timestamp.fromDate(new Date(transfert.createdDate));
-            this.LastTimeInPending = Timestamp.fromDate(new Date(transfert.createdDate));
         }
         if(transfert.bank){
             this.to_bank = true;
