@@ -11,6 +11,8 @@ export class Jpatransfert {
     }
 
     public async create(transfert: Transfert) {
+        transfert.createdDate = new Date();
+        transfert.LastTimeInPending = new Date();
         return await this.db.collection(TRANSFERT_COLLECTION).add({...transfert});
     }
 
