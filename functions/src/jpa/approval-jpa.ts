@@ -1,4 +1,4 @@
-import { Firestore, FieldPath } from "firebase-admin/firestore";
+import { Firestore } from "firebase-admin/firestore";
 //import * as functions from "firebase-functions";
 
 
