@@ -27,7 +27,7 @@ export class Jpatransfert {
         if (!transfert.exists) {
             throw new functions.https.HttpsError('not-found', 'Transfert Not Found');
         }
-        return {...transfert.data(), id: transfert.id};
+        return transfert;
     }
 
     public async getAll(){

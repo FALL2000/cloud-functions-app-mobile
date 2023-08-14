@@ -22,7 +22,7 @@ export class Transfert {
             if(statut.includes(transfert.status)){
                 this.status = transfert.status;
             }else{
-                throw new functions.https.HttpsError('failed-precondition', 'Status is not valid');
+                throw new functions.https.HttpsError('failed-precondition', 'Status Transfert is not valid');
             }
         }
         if(transfert.amount != null){

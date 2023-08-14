@@ -3,7 +3,7 @@ import * as functions from "firebase-functions";
 //import {getFirestore} from "firebase-admin/firestore";
 import {toTransfert} from "./utils/global_functions";
 import { info} from "firebase-functions/logger";
-import {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert } from "./funts";
+import {createTransfert, getAllTransfert, getOneTransfert, deleteTransfert, updateTransfert, updateStatusApproval } from "./funts";
 import { Response } from "./types/response";
 import { UserRole } from "./enum/role_enum";
 import { check_auth, check_role, check_transfert } from "./utils/global_checker";
@@ -15,10 +15,11 @@ import { check_auth, check_role, check_transfert } from "./utils/global_checker"
 
 const SAVE_ROLE = [UserRole.Client];
 const UPDATE_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Gestionnaire];
+const UPDATE_APPROVAL_ROLE = [UserRole.Client,UserRole.Agent];
 const DELETE_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Gestionnaire];
 const ALL_ROLE = [UserRole.Client,UserRole.Admin,UserRole.Agent,UserRole.Gestionnaire];
 
-type availableAction = "SAVE" | "DELETE" | 'GET-INFO' | 'GET-ALL' | 'UPDATE';
+type availableAction = "SAVE" | "DELETE" | 'GET-INFO' | 'GET-ALL' | 'UPDATE' | 'UPDATE-APPROVAL-STATUS';
 
 exports.nl_manage_request = functions.https.onCall(async (data, context) => {
     info(data);
@@ -47,6 +48,9 @@ exports.nl_manage_request = functions.https.onCall(async (data, context) => {
             case 'UPDATE':
                 await check_role(context, UPDATE_ROLE);
                 return await updateTransfert(transfert, data.transfertId);
+            case 'UPDATE-APPROVAL-STATUS':
+                await check_role(context, UPDATE_APPROVAL_ROLE);
+                return await updateStatusApproval(data.approvalId, data.status, context);
             default:
                 throw new functions.https.HttpsError('failed-precondition', 'unavailable action');
                 break;
