@@ -15,7 +15,8 @@ export class Jpausers {
               throw new functions.https.HttpsError('not-found', 'Users Not Found!');
         }else{
             return { "Id":users.id, "role":users.get('role'),
-                        "firstname":users.get('firstname'), "lastname":users.get('lastname') // additional user information
+                        "firstname":users.get('firstname'), "lastname":users.get('lastname'),
+                         "phone":users.get('phone') , "email":users.get('email') // additional user information
             };
         }
     }

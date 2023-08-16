@@ -39,10 +39,15 @@ const getOneTransfert = async (transfertId:string) => {
     let approval = await approvalJPA.findByTransfert(transfertId);
     let res = new Response();
     res.message = "Transfert Info";
+    let _data=transferts.data();
+    if(_data?.ownerId){
+        let owner = await usersJPA.getOne(_data.ownerId);
+        _data={..._data,owner}
+    }
     if(transferts.get('status') == StatusTranfert.Open || approval == null){
-        res.body = {...transferts.data(), id: transferts.id}
+        res.body = {..._data, id: transferts.id}
     }else{
-        res.body = {...transferts.data(), id: transferts.id, approval:approval}
+        res.body = {..._data, id: transferts.id, approval:approval}
     }
     return res;
 }
