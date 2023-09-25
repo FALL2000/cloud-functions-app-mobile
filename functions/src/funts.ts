@@ -93,8 +93,7 @@ const updateStatusApproval = async (transfertId:string, approvalId:string, statu
         }
         if(user.role == UserRole.Client){
             if(status == StatusApproval.Approved || status == StatusApproval.Rejected || status == StatusApproval.Canceled){
-                if(await isUpdatable(transfertId))
-                  res.body = await approvalJPA.updateStatus(transfertId,approvalId, status);
+                res.body = await approvalJPA.updateStatus(transfertId,approvalId, status);
             }else{
                 throw new functions.https.HttpsError('failed-precondition', 'This Status is not valid for role CLIENT');
             }
