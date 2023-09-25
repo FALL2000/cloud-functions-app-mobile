@@ -49,7 +49,7 @@ exports.nl_manage_request = functions.https.onCall(async (data, context) => {
                 return await updateTransfert(await completeTransfert(transfert,context), data.transfertId);
             case 'UPDATE-APPROVAL-STATUS':
                 await check_role(context, UPDATE_APPROVAL_ROLE);
-                return await updateStatusApproval(data.approvalId, data.status, context);
+                return await updateStatusApproval(data.transfertId, data.approvalId, data.status, context);
             default:
                 throw new functions.https.HttpsError('failed-precondition', 'unavailable action');
                 break;

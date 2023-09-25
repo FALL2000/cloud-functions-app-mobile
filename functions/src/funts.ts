@@ -18,6 +18,11 @@ const transfertJPA= getJpaTransfert(db);
 const approvalJPA= getApprovalJpa(db);
 const usersJPA= getJpaUsers(db);
 
+const isUpdatable = async (transfertId:string):Promise<boolean> => {
+    let transferts = await transfertJPA.getOne(transfertId);
+    return transferts.get('status') == StatusTranfert.Open;
+}
+
 const createTransfert = async (transfert: Transfert) => {
     let transInsert = await transfertJPA.create(transfert);
     let res = new Response();
@@ -61,29 +66,40 @@ const deleteTransfert = async (transfertId:string) => {
 }
 
 const updateTransfert = async (transfert: Transfert, transfertId:string) => {
-    let transUpdate = await transfertJPA.put(transfertId,transfert);
-    let res = new Response();
-    res.body = transUpdate;
-    res.message = "Transfert Updated";
-    return res;
+    if(await isUpdatable(transfertId)){
+        let transUpdate = await transfertJPA.put(transfertId,transfert);
+        let res = new Response();
+        res.body = transUpdate;
+        res.message = "Transfert Updated";
+        return res;
+    }else{
+        throw new functions.https.HttpsError('failed-precondition', 'This Transfert cannot edited');
+    }
+    
 }
 
-const updateStatusApproval = async (approvalId:string, status:any, context:any) => {
+const updateStatusApproval = async (transfertId:string, approvalId:string, status:any, context:any) => {
     const  statusApp = [StatusApproval.Open, StatusApproval.InApproval, StatusApproval.InProgress, StatusApproval.Approved, StatusApproval.Rejected, StatusApproval.Canceled, StatusApproval.ClosedWon, StatusApproval.Error, StatusApproval.Terminate];
     let res = new Response();
     res.message = "Status Approval Updated";
     if(statusApp.includes(status)){
         let user = await usersJPA.getOne(context.auth?.uid);
-        if(status == StatusApproval.Terminate && user.role == UserRole.Agent){
-            res.body = await approvalJPA.updateStatus(approvalId, status)
-        }else{
-            throw new functions.https.HttpsError('failed-precondition', 'This Status is not valid for role AGENT');
+        if(user.role == UserRole.Agent){
+            if(status == StatusApproval.Terminate){
+                res.body = await approvalJPA.updateStatus(transfertId,approvalId, status)
+            }else{
+                throw new functions.https.HttpsError('failed-precondition', 'This Status is not valid for role AGENT');
+            }
         }
-        if((status == StatusApproval.Approved || status == StatusApproval.Rejected) && user.role == UserRole.Client){
-            res.body = await approvalJPA.updateStatus(approvalId, status)
-        }else{
-            throw new functions.https.HttpsError('failed-precondition', 'This Status is not valid for role CLIENT');
+        if(user.role == UserRole.Client){
+            if(status == StatusApproval.Approved || status == StatusApproval.Rejected || status == StatusApproval.Canceled){
+                if(await isUpdatable(transfertId))
+                  res.body = await approvalJPA.updateStatus(transfertId,approvalId, status);
+            }else{
+                throw new functions.https.HttpsError('failed-precondition', 'This Status is not valid for role CLIENT');
+            }
         }
+        
     }else{
         throw new functions.https.HttpsError('failed-precondition', 'Status Approval is not valid');
     }

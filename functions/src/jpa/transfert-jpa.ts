@@ -3,6 +3,7 @@ import { Transfert } from "../types/transfert";
 import {updateField,} from "../utils/global_functions";
 import * as functions from "firebase-functions";
 import { info} from "firebase-functions/logger";
+import { StatusTranfert } from "../enum/status_enum";
 const TRANSFERT_COLLECTION= process.env.TRANSFERT_COLLECTION || 'transferts';
 
 export class Jpatransfert {
@@ -58,7 +59,7 @@ export class Jpatransfert {
 
     public async findByUser(usersId:string){
         const transferts:any[] = [];
-        const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('ownerId', '==', usersId).get();
+        const snapshot = await this.db.collection(TRANSFERT_COLLECTION).where('ownerId', '==', usersId).where('status', '!=', StatusTranfert.Canceled).get();
         if (snapshot.empty) {
             throw new functions.https.HttpsError('not-found', 'Transferts Not Found');
         }  
