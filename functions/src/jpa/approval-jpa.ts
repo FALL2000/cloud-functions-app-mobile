@@ -27,7 +27,7 @@ class Jpa {
         return dataTab[0];
     }
 
-    public async updateStatus(transfertId:string, approvalId:string, status:string) {
+    public async updateStatus(transfertId:string, approvalId:string, status:string, userNote?:string) {
         
         const approvalref = this.db.collection(APPROVAL_COLLECTION).doc(approvalId);
         if(status == StatusApproval.Terminate){
@@ -35,12 +35,16 @@ class Jpa {
         }else{
             const batch = this.db.batch();
             const transref = this.db.collection(TRANSFERT_COLLECTION).doc(transfertId);
-            batch.update(approvalref, {status: status});
+            if(userNote){
+                batch.set(approvalref, {status: status, userNote:userNote}, { merge: true });
+            }else{
+                batch.update(approvalref, {status: status});
+            }
             if(status == StatusApproval.Approved){
                 batch.update(transref, {status: StatusTranfert.Approved});
             }
             if(status == StatusApproval.Rejected){
-                batch.update(transref, {status: StatusTranfert.Open});
+                batch.update(transref, {status: StatusTranfert.Open, LastTimeInPending: new Date()});
             }
             if(status == StatusApproval.Canceled){
                 batch.update(transref, {status: StatusTranfert.Canceled});

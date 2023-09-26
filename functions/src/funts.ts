@@ -78,7 +78,7 @@ const updateTransfert = async (transfert: Transfert, transfertId:string) => {
     
 }
 
-const updateStatusApproval = async (transfertId:string, approvalId:string, status:any, context:any) => {
+const updateStatusApproval = async (transfertId:string, approvalId:string, status:any, context:any, userNote?:string) => {
     const  statusApp = [StatusApproval.Open, StatusApproval.InApproval, StatusApproval.InProgress, StatusApproval.Approved, StatusApproval.Rejected, StatusApproval.Canceled, StatusApproval.ClosedWon, StatusApproval.Error, StatusApproval.Terminate];
     let res = new Response();
     res.message = "Status Approval Updated";
@@ -93,7 +93,7 @@ const updateStatusApproval = async (transfertId:string, approvalId:string, statu
         }
         if(user.role == UserRole.Client){
             if(status == StatusApproval.Approved || status == StatusApproval.Rejected || status == StatusApproval.Canceled){
-                res.body = await approvalJPA.updateStatus(transfertId,approvalId, status);
+                res.body = userNote ? await approvalJPA.updateStatus(transfertId,approvalId,status,userNote) : await approvalJPA.updateStatus(transfertId,approvalId,status);
             }else{
                 throw new functions.https.HttpsError('failed-precondition', 'This Status is not valid for role CLIENT');
             }
